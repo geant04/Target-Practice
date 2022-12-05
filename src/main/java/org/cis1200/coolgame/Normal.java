@@ -30,15 +30,12 @@ public class Normal extends TargetObj{
 
     @Override
     public void draw(Graphics g) {
-        /*
-        g.setColor(this.color);
-        g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
 
-         */
+        //g.setColor(this.color);
+        //g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
 
         g.drawImage(img, this.getPx() - this.getRadius(), this.getPy() - this.getRadius(),
                 this.getRadius() * 2, this.getRadius() * 2, null);
-
 
     }
 }

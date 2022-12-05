@@ -56,12 +56,7 @@ public class TargetCourt extends JPanel{
         // actionPerformed() method is called each time the timer triggers. We
         // define a helper method called tick() that actually does everything
         // that should be done in a single time step.
-        Timer timer = new Timer(TICK_RATE, e -> tick());
-        timer.start(); // MAKE SURE TO START THE TIMER!
 
-        // Enable keyboard focus on the court area. When this component has the
-        // keyboard focus, key events are handled by its key listener.
-        setFocusable(true);
 
         this.status = status;
 
@@ -70,12 +65,14 @@ public class TargetCourt extends JPanel{
             public void mouseReleased(MouseEvent e) {
                 System.out.println("mouse_click");
                 Point p = e.getPoint();
+
+                //targetstoRemove = new ArrayList<TargetObj>();
                 points = new ArrayList<>();
                 targetpoints = new ArrayList<>();
 
+                // updates the model given the coordinates of the mouseclick
                 points.add(p);
 
-                // updates the model given the coordinates of the mouseclick
                 var targetstoRemove = new ArrayList<TargetObj>();
                 int targets_hit = 0;
                 String msg = "";
@@ -94,17 +91,25 @@ public class TargetCourt extends JPanel{
 
                 for(TargetObj target_bye : targetstoRemove){
                     score++;
-                    targets.remove(target_bye);
+                    //targets.remove(target_bye);
+                    run = false;
                 }
                 msg = "Score : " + score;
                 if(targets_hit > 1){
                     msg += "; Collat! Nice!";
                 }
-
                 updateStatus(msg); // updates the status JLabel
+
                 repaint(); // repaints the game board
             }
         });
+
+        Timer timer = new Timer(TICK_RATE, e -> tick());
+        timer.start(); // MAKE SURE TO START THE TIMER!
+
+        // Enable keyboard focus on the court area. When this component has the
+        // keyboard focus, key events are handled by its key listener.
+        setFocusable(true);
     }
 
     public void reset() {
@@ -121,26 +126,27 @@ public class TargetCourt extends JPanel{
 
     void tick() {
         if (run) {
+            repaint();
+
             int funNumber = (int)Math.floor(Math.random() * 200);
             var targetstoRemove = new ArrayList<TargetObj>();
 
             for(TargetObj target : targets){
                 target.move();
 
-                if(target.getPy() > COURT_WIDTH && target.getVY() >= 0){
+                if(target.getPy() > COURT_WIDTH && target.getVY() >= 0) {
                     targetstoRemove.add(target);
                 }
             }
             for(TargetObj target_bye : targetstoRemove){
-                targets.remove(target_bye);
+                //targets.remove(target_bye);
             }
 
-            if(funNumber <= 1){
+            if(funNumber <= 10){
                 spawn();
             }
 
             // update the display
-            repaint();
         }
     }
     void spawn(){
@@ -179,11 +185,11 @@ public class TargetCourt extends JPanel{
         for(TargetObj target : targets){
             target.draw(g);
         }
-        for (Point p : points){
-            g.fillOval(p.x, p.y, 5, 5);
+        for(Point p : points){
+            g.drawOval(p.x, p.y, 5,5);
         }
-        for (Point p : targetpoints){
-            g.fillOval(p.x, p.y, 10, 10);
+        for(Point p : targetpoints){
+            g.drawOval(p.x, p.y, 10,10);
         }
     }
 
