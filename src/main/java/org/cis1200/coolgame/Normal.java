@@ -5,7 +5,7 @@ import static org.cis1200.coolgame.TargetCourt.img;
 
 public class Normal extends TargetObj{
 
-    public static final int INIT_RAD = 40;
+    public static final int INIT_RAD = 60;
 
     public static final int INIT_POS_X = 170;
     public static final int INIT_POS_Y = 170;
@@ -34,8 +34,8 @@ public class Normal extends TargetObj{
         //g.setColor(this.color);
         //g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
 
-        g.drawImage(img, this.getPx() - this.getRadius(), this.getPy() - this.getRadius(),
-                this.getRadius() * 2, this.getRadius() * 2, null);
+        g.drawImage(img, this.getPx() - getRadius()/2, this.getPy() - getRadius()/2,
+                this.getRadius(), this.getRadius(), null);
 
     }
 }

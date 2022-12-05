@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 
 public class TargetCourt extends JPanel{
@@ -27,10 +28,13 @@ public class TargetCourt extends JPanel{
     // Update interval for timer, in milliseconds
     public static final int TICK_RATE = 15;
     public static final int INIT_SPAWN_RATE = 100;
+    public static int time = 0;
+    public static int netTime = 0;
     public static int SPAWN_RATE = 100;
     public static double FUNNY_RATE = 0;
     // this is the rate in which we spawn funny targets instead of normal ones
     private ArrayList<TargetObj> targets = new ArrayList<TargetObj>();
+    private ArrayList<TargetObj> details = new ArrayList<TargetObj>();
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Point> targetpoints = new ArrayList<>();
 
@@ -91,8 +95,20 @@ public class TargetCourt extends JPanel{
 
                 for(TargetObj target_bye : targetstoRemove){
                     score++;
-                    //targets.remove(target_bye);
-                    run = false;
+                    int tx = target_bye.getPx();
+                    int ty = target_bye.getPy();
+                    int rad = target_bye.getRadius();
+
+                    int bits = (int)Math.floor(Math.random() * 3 ) + 3;
+
+                    for(int i=0; i<bits; i++){ // make the plate shatter
+                        double vy = Math.random()*10 + 2;
+                        double vx = Math.random()*10 + target_bye.getVX() - 5;
+
+                        TargetObj bit = new Plate(tx, ty, vx, vy, rad / bits);
+                        details.add(bit);
+                    }
+                    targets.remove(target_bye);
                 }
                 msg = "Score : " + score;
                 if(targets_hit > 1){
@@ -116,6 +132,8 @@ public class TargetCourt extends JPanel{
         targets = new ArrayList<TargetObj>();
         lives = 3;
         score = 0;
+        time = 0;
+        netTime = 0;
 
         SPAWN_RATE = INIT_SPAWN_RATE;
         run = true;
@@ -126,29 +144,37 @@ public class TargetCourt extends JPanel{
 
     void tick() {
         if (run) {
+            SPAWN_RATE = (int) (100 + -4* (Math.log(netTime+1) / Math.log(2)) );
+
+            time++;
+            netTime++;
             repaint();
 
             int funNumber = (int)Math.floor(Math.random() * 200);
-            var targetstoRemove = new ArrayList<TargetObj>();
 
-            for(TargetObj target : targets){
-                target.move();
+            movestuff(targets);
+            movestuff(details);
 
-                if(target.getPy() > COURT_WIDTH && target.getVY() >= 0) {
-                    targetstoRemove.add(target);
-                }
-            }
-            for(TargetObj target_bye : targetstoRemove){
-                //targets.remove(target_bye);
-            }
-
-            if(funNumber <= 10){
+            if(time >= SPAWN_RATE){
                 spawn();
+                time = 0;
             }
-
             // update the display
         }
     }
+    private void movestuff(ArrayList<TargetObj> master) {
+        var toRemove = new ArrayList<TargetObj>();
+        for(TargetObj obj : master){
+            obj.move();
+            if(obj.getPy() > COURT_WIDTH && obj.getVY() >= 0){
+                toRemove.add(obj);
+            }
+        }
+        for(TargetObj obj_gone : toRemove){
+            master.remove(obj_gone);
+        }
+    }
+
     void spawn(){
         double chance = Math.random();
         boolean isFunny = false;
@@ -185,11 +211,11 @@ public class TargetCourt extends JPanel{
         for(TargetObj target : targets){
             target.draw(g);
         }
+        for(TargetObj bit : details){
+            bit.draw(g);
+        }
         for(Point p : points){
             g.drawOval(p.x, p.y, 5,5);
-        }
-        for(Point p : targetpoints){
-            g.drawOval(p.x, p.y, 10,10);
         }
     }
 
