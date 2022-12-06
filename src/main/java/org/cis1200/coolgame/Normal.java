@@ -11,9 +11,8 @@ public class Normal extends TargetObj{
     public static final int INIT_POS_Y = 170;
     public static final int INIT_VEL_X = 0;
     public static final int INIT_VEL_Y = 30;
-    final private Color color;
 
-    public Normal(int px, int py, int vx, int vy, Color color) {
+    public Normal(int px, int py, int vx, int vy) {
         super(px, py, INIT_RAD, vx, vy);
 
         /*
@@ -25,7 +24,6 @@ public class Normal extends TargetObj{
             System.out.println("Internal Error:" + e.getMessage());
         }
          */
-        this.color = color;
     }
 
     @Override

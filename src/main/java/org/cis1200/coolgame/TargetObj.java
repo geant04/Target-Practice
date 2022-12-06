@@ -45,10 +45,10 @@ public abstract class TargetObj {
     public void setY(int y){
         this.py = y;
     }
-    public void setVX(int vx){
+    public void setVX(double vx){
         this.vx = vx;
     }
-    public void setVY(int vy){
+    public void setVY(double vy){
         this.vy = vy;
     }
     public void setRadius(int r){

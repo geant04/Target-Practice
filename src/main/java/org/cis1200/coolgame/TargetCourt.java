@@ -40,6 +40,14 @@ public class TargetCourt extends JPanel{
 
     public static final String IMG_FILE = "files/target.png";
     public static BufferedImage img;
+    public static String[] textures = {
+            "files/ghosttarget4.png",
+            "files/ghosttarget3.png",
+            "files/ghosttarget2.png",
+            "files/ghosttarget.png"
+    };
+    public static BufferedImage[] ghostfiles = new BufferedImage[4];
+
 
 
     public TargetCourt(JLabel status) {
@@ -47,6 +55,9 @@ public class TargetCourt extends JPanel{
         try {
             if (img == null) {
                 img = ImageIO.read(new File(IMG_FILE));
+                for(int i=0; i< textures.length; i++){
+                    ghostfiles[i] = ImageIO.read(new File(textures[i]));
+                }
             }
         } catch (IOException e) {
             System.out.println("Internal Error:" + e.getMessage());
@@ -144,14 +155,13 @@ public class TargetCourt extends JPanel{
 
     void tick() {
         if (run) {
+            repaint();
+
             SPAWN_RATE = (int) (100 + -4* (Math.log(netTime+1) / Math.log(2)) );
 
             time++;
             netTime++;
-            repaint();
-
-            int funNumber = (int)Math.floor(Math.random() * 200);
-
+            
             movestuff(targets);
             movestuff(details);
 
@@ -188,13 +198,12 @@ public class TargetCourt extends JPanel{
             int vx = 2;
             int vy = (int)Math.floor(Math.random() * 12 + 12);
             int pos_y = COURT_HEIGHT;
-            Color color = Color.red;
 
             if(rand_x > COURT_WIDTH/2){
                 vx *= -1;
             }
 
-            newTarget = new Normal(rand_x, pos_y, vx, vy, color);
+            newTarget = new Ghost(rand_x, pos_y, vx, vy);
         }
 
         if(newTarget != null){
