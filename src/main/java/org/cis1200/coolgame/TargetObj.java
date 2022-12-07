@@ -67,6 +67,7 @@ public abstract class TargetObj {
         int x_sq = (x - px) * (x - px);
         int y_sq = (y - py) * (y - py);
         double dist = Math.sqrt(x_sq + y_sq);
+        /*
         if(dist <= radius){
             System.out.println(
                     "Mouse x: " + x + ", compare to: " + px + "\n"
@@ -74,6 +75,8 @@ public abstract class TargetObj {
                             + "Distance: " + dist
             );
         }
+
+         */
         return dist <= radius;
     }
 

@@ -1,6 +1,7 @@
 package org.cis1200.coolgame;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -18,11 +19,15 @@ public class TargetCourt extends JPanel{
 
     private boolean run = false;
     private final JLabel status;
+    private JLabel announce_label;
+    private JLabel live_label;
+    private JLabel score_label;
 
     public static final int COURT_WIDTH = 600;
     public static final int COURT_HEIGHT = 600;
-    public static int lives = 3;
+    public static int lives = 5;
     public static int score = 0;
+    public static int streak = 0;
 
 
     // Update interval for timer, in milliseconds
@@ -39,30 +44,64 @@ public class TargetCourt extends JPanel{
     private ArrayList<Point> targetpoints = new ArrayList<>();
 
     public static final String IMG_FILE = "files/target.png";
+    public static final String FAST_FILE = "files/fasttarget.png";
     public static BufferedImage img;
+    public static BufferedImage fastimg;
     public static String[] textures = {
             "files/ghosttarget4.png",
             "files/ghosttarget3.png",
             "files/ghosttarget2.png",
             "files/ghosttarget.png"
     };
-    public static BufferedImage[] ghostfiles = new BufferedImage[4];
+    public static String[] doubletexts = {
+            "files/doubletarget1.png",
+            "files/doubletarget2.png"
+    };
+    public static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
+    public static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
 
+    //
+    public static AudioInputStream shoot;
+    public static Clip shoot_clip;
 
+    public static String s_path = "files/bong.wav";
+    public static String impressive_path = "files/impressive.wav";
+    public static String pew_path = "files/pew.wav";
 
     public TargetCourt(JLabel status) {
+        setLayout(null);
+
+        announce_label = new JLabel("prepare to FIGHT");
+        score_label = new JLabel("score: " + score);
+        live_label = new JLabel("lives: " + lives);
+
+        announce_label.setFont(new Font("Papyrus", Font.PLAIN, 60));
+        announce_label.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
+        add(announce_label);
+
+        score_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        score_label.setBounds(0, -20, COURT_WIDTH, COURT_HEIGHT);
+        add(score_label);
+
+        live_label.setText("lives: " + lives);
+        live_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        live_label.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
+        add(live_label);
 
         try {
             if (img == null) {
                 img = ImageIO.read(new File(IMG_FILE));
+                fastimg = ImageIO.read(new File(FAST_FILE));
                 for(int i=0; i< textures.length; i++){
                     ghostfiles[i] = ImageIO.read(new File(textures[i]));
+                }
+                for(int i=0; i< doubletexts.length; i++){
+                    doublefiles[i] = ImageIO.read(new File(doubletexts[i]));
                 }
             }
         } catch (IOException e) {
             System.out.println("Internal Error:" + e.getMessage());
         }
-
         // creates border around the court area, JComponent method
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -71,13 +110,14 @@ public class TargetCourt extends JPanel{
         // actionPerformed() method is called each time the timer triggers. We
         // define a helper method called tick() that actually does everything
         // that should be done in a single time step.
-
+        System.out.println("yeah");
 
         this.status = status;
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
+                play(pew_path);
                 System.out.println("mouse_click");
                 Point p = e.getPoint();
 
@@ -106,6 +146,8 @@ public class TargetCourt extends JPanel{
 
                 for(TargetObj target_bye : targetstoRemove){
                     score++;
+                    streak++;
+
                     int tx = target_bye.getPx();
                     int ty = target_bye.getPy();
                     int rad = target_bye.getRadius();
@@ -120,13 +162,17 @@ public class TargetCourt extends JPanel{
                         details.add(bit);
                     }
                     targets.remove(target_bye);
+
+                    if(streak % 5 == 0){
+                        play(impressive_path);
+                    }
                 }
                 msg = "Score : " + score;
                 if(targets_hit > 1){
                     msg += "; Collat! Nice!";
                 }
                 updateStatus(msg); // updates the status JLabel
-
+                score_label.setText("score: " + score);
                 repaint(); // repaints the game board
             }
         });
@@ -141,23 +187,44 @@ public class TargetCourt extends JPanel{
 
     public void reset() {
         targets = new ArrayList<TargetObj>();
-        lives = 3;
+        lives = 5;
         score = 0;
+        streak = 0;
         time = 0;
         netTime = 0;
 
         SPAWN_RATE = INIT_SPAWN_RATE;
         run = true;
+
+        announce_label.setText("prepare to FIGHT");
+        score_label.setText("score: " + score);
+        live_label.setText("lives: " + lives);
+
         updateStatus("Running...");
         // Make sure that this component has the keyboard focus
         requestFocusInWindow();
     }
 
-    void tick() {
+    public static synchronized void play(String song_path){
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(song_path));
+                    clip.open(inputStream);
+                    clip.start();
+                } catch (Exception e) {
+                }
+            }
+        }).start();
+    }
+
+    void tick(){
         if (run) {
             repaint();
 
-            SPAWN_RATE = (int) (100 + -4* (Math.log(netTime+1) / Math.log(2)) );
+            SPAWN_RATE = (int) (100 + -(Math.log(netTime/100+1) / Math.log(2)) );
+            FUNNY_RATE = 0.5*Math.pow(-0.1*netTime/100 - 1, -1) + 0.5;
 
             time++;
             netTime++;
@@ -182,29 +249,37 @@ public class TargetCourt extends JPanel{
         }
         for(TargetObj obj_gone : toRemove){
             master.remove(obj_gone);
+            if(!(obj_gone instanceof Plate)){
+                lives--;
+                streak = 0;
+                live_label.setText("lives: " + lives);
+                if(lives <= 0){
+                    run = false;
+                    announce_label.setText("you lost L");
+                }
+            }
         }
     }
-
+    public TargetObj returnTarget(double chance, int x, int y, int vx, int vy){
+        if(chance < FUNNY_RATE * 0.4) return new Fast(x,y, vx, vy*1.3);
+        if(chance < FUNNY_RATE * 0.7) return new DoubleTarget(x,y, vx, vy);
+        if(chance < FUNNY_RATE) return new Ghost(x,y, vx, vy);
+        return new Normal(x,y,vx,vy);
+    }
     void spawn(){
         double chance = Math.random();
-        boolean isFunny = false;
         TargetObj newTarget = null;
 
-        if(chance < FUNNY_RATE){
-            isFunny = true;
-        }
-        if(!isFunny){
-            int rand_x = (int)Math.floor(Math.random() * COURT_WIDTH);
-            int vx = 2;
-            int vy = (int)Math.floor(Math.random() * 12 + 12);
-            int pos_y = COURT_HEIGHT;
+        int rand_x = (int)Math.floor(Math.random() * COURT_WIDTH);
+        int vx = 2;
+        int vy = (int)Math.floor(Math.random() * 12 + 12);
+        int pos_y = COURT_HEIGHT;
 
-            if(rand_x > COURT_WIDTH/2){
-                vx *= -1;
-            }
-
-            newTarget = new Ghost(rand_x, pos_y, vx, vy);
+        if(rand_x > COURT_WIDTH/2){
+            vx *= -1;
         }
+
+        newTarget = returnTarget(chance, rand_x, pos_y, vx, vy);
 
         if(newTarget != null){
             targets.add(newTarget);
