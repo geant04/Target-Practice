@@ -20,8 +20,24 @@ public class TargetCourt extends JPanel{
     private boolean run = false;
     private final JLabel status;
     private JLabel announce_label;
+    private JLabel helpful_tip;
     private JLabel live_label;
     private JLabel score_label;
+    private JLabel streak_label;
+
+    public static String[] tips = {
+            "eat lots of corn",
+            "clicking the target makes you win",
+            "get good",
+            "get good aim",
+            "have u tried using a better chair",
+            "idk i forgot",
+            "try to avoid hill dining",
+            "click the target",
+            "clicc",
+            "thank you lord swap",
+            "i coded this game badly so try aiming below the targets"
+    };
 
     public static final int COURT_WIDTH = 600;
     public static final int COURT_HEIGHT = 600;
@@ -62,22 +78,37 @@ public class TargetCourt extends JPanel{
 
     //
     public static AudioInputStream shoot;
+    public static AudioInputStream bgm_audio;
     public static Clip shoot_clip;
+    public static Clip bgm;
 
     public static String s_path = "files/bong.wav";
     public static String impressive_path = "files/impressive.wav";
     public static String pew_path = "files/pew.wav";
+    public static String bgm_path = "files/bgm.wav";
 
     public TargetCourt(JLabel status) {
         setLayout(null);
 
         announce_label = new JLabel("prepare to FIGHT");
+        helpful_tip = new JLabel("tip: " +
+                tips[(int) Math.floor(Math.random() * tips.length)]);
         score_label = new JLabel("score: " + score);
         live_label = new JLabel("lives: " + lives);
+        streak_label = new JLabel("streak: " + streak);
 
         announce_label.setFont(new Font("Papyrus", Font.PLAIN, 60));
         announce_label.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
         add(announce_label);
+
+        helpful_tip.setFont(new Font("Papyrus", Font.PLAIN, 20));
+        helpful_tip.setBounds(0, -190, COURT_WIDTH, COURT_HEIGHT);
+        add(helpful_tip);
+
+        streak_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        streak_label.setBounds(0, -50, COURT_WIDTH, COURT_HEIGHT);
+        streak_label.setForeground(Color.BLACK);
+        add(streak_label);
 
         score_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
         score_label.setBounds(0, -20, COURT_WIDTH, COURT_HEIGHT);
@@ -86,7 +117,19 @@ public class TargetCourt extends JPanel{
         live_label.setText("lives: " + lives);
         live_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
         live_label.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
+
+
         add(live_label);
+        try {
+            shoot_clip = AudioSystem.getClip();
+            shoot = AudioSystem.getAudioInputStream(new File(impressive_path));
+            shoot_clip.open(shoot);
+
+            bgm = AudioSystem.getClip();
+            bgm_audio = AudioSystem.getAudioInputStream(new File(bgm_path));
+            bgm.open(bgm_audio);
+        } catch (Exception e) {
+        }
 
         try {
             if (img == null) {
@@ -110,70 +153,75 @@ public class TargetCourt extends JPanel{
         // actionPerformed() method is called each time the timer triggers. We
         // define a helper method called tick() that actually does everything
         // that should be done in a single time step.
-        System.out.println("yeah");
 
         this.status = status;
+        bgm.setFramePosition(0);
+        //bgm.start();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                play(pew_path);
-                System.out.println("mouse_click");
-                Point p = e.getPoint();
+                if(run){ // make sure we don't do anything funny if we lose
+                    System.out.println("mouse_click");
+                    Point p = e.getPoint();
 
-                //targetstoRemove = new ArrayList<TargetObj>();
-                points = new ArrayList<>();
-                targetpoints = new ArrayList<>();
+                    //targetstoRemove = new ArrayList<TargetObj>();
+                    points = new ArrayList<>();
+                    targetpoints = new ArrayList<>();
 
-                // updates the model given the coordinates of the mouseclick
-                points.add(p);
+                    // updates the model given the coordinates of the mouseclick
+                    points.add(p);
 
-                var targetstoRemove = new ArrayList<TargetObj>();
-                int targets_hit = 0;
-                String msg = "";
+                    var targetstoRemove = new ArrayList<TargetObj>();
+                    int targets_hit = 0;
+                    String msg = "";
 
-                for(TargetObj target : targets){
-                    int tx = target.getPx();
-                    int ty = target.getPy();
+                    for(TargetObj target : targets){
+                        int tx = target.getPx();
+                        int ty = target.getPy();
 
-                    targetpoints.add(new Point(tx, ty));
-                    if(target.isHit(p.x , p.y)){
-                        System.out.println("Hit!");
-                        targetstoRemove.add(target);
-                        targets_hit++;
+                        targetpoints.add(new Point(tx, ty));
+                        if(target.isHit(p.x , p.y)){
+                            System.out.println("Hit!");
+                            targetstoRemove.add(target);
+                            targets_hit++;
+                        }
                     }
-                }
 
-                for(TargetObj target_bye : targetstoRemove){
-                    score++;
-                    streak++;
+                    for(TargetObj target_bye : targetstoRemove){
+                        score++;
+                        streak++;
 
-                    int tx = target_bye.getPx();
-                    int ty = target_bye.getPy();
-                    int rad = target_bye.getRadius();
+                        int tx = target_bye.getPx();
+                        int ty = target_bye.getPy();
+                        int rad = target_bye.getRadius();
 
-                    int bits = (int)Math.floor(Math.random() * 3 ) + 3;
+                        int bits = (int)Math.floor(Math.random() * 3 ) + 3;
 
-                    for(int i=0; i<bits; i++){ // make the plate shatter
-                        double vy = Math.random()*10 + 2;
-                        double vx = Math.random()*10 + target_bye.getVX() - 5;
+                        for(int i=0; i<bits; i++){ // make the plate shatter
+                            double vy = Math.random()*10 + 2;
+                            double vx = Math.random()*10 + target_bye.getVX() - 5;
 
-                        TargetObj bit = new Plate(tx, ty, vx, vy, rad / bits);
-                        details.add(bit);
+                            TargetObj bit = new Plate(tx, ty, vx, vy, rad / bits);
+                            details.add(bit);
+                        }
+                        targets.remove(target_bye);
+
+                        if(streak % 5 == 0){
+                            streak_label.setForeground(Color.ORANGE);
+                            shoot_clip.setFramePosition(0);
+                            shoot_clip.start();
+                        }
                     }
-                    targets.remove(target_bye);
-
-                    if(streak % 5 == 0){
-                        play(impressive_path);
+                    msg = "Score : " + score;
+                    if(targets_hit > 1){
+                        msg += "; Collat! Nice!";
                     }
+                    updateStatus(msg); // updates the status JLabel
+                    score_label.setText("score: " + score);
+                    streak_label.setText("streak: " + streak);
+                    repaint(); // repaints the game board
                 }
-                msg = "Score : " + score;
-                if(targets_hit > 1){
-                    msg += "; Collat! Nice!";
-                }
-                updateStatus(msg); // updates the status JLabel
-                score_label.setText("score: " + score);
-                repaint(); // repaints the game board
             }
         });
 
@@ -197,8 +245,15 @@ public class TargetCourt extends JPanel{
         run = true;
 
         announce_label.setText("prepare to FIGHT");
+        helpful_tip.setText("tip: " +
+                tips[(int) Math.floor(Math.random() * tips.length)]);
         score_label.setText("score: " + score);
         live_label.setText("lives: " + lives);
+        streak_label.setText("streak: " + streak);
+        streak_label.setForeground(Color.BLACK);
+
+        bgm.setFramePosition(0);
+        bgm.start();
 
         updateStatus("Running...");
         // Make sure that this component has the keyboard focus
@@ -206,8 +261,8 @@ public class TargetCourt extends JPanel{
     }
 
     public static synchronized void play(String song_path){
-        new Thread(new Runnable() {
-            public void run() {
+        //new Thread(new Runnable() {
+            //public void run() {
                 try {
                     Clip clip = AudioSystem.getClip();
                     AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(song_path));
@@ -215,8 +270,8 @@ public class TargetCourt extends JPanel{
                     clip.start();
                 } catch (Exception e) {
                 }
-            }
-        }).start();
+            //}
+        //}).start();
     }
 
     void tick(){
@@ -253,6 +308,9 @@ public class TargetCourt extends JPanel{
                 lives--;
                 streak = 0;
                 live_label.setText("lives: " + lives);
+                streak_label.setText("streak: " + streak);
+                streak_label.setForeground(Color.BLACK);
+
                 if(lives <= 0){
                     run = false;
                     announce_label.setText("you lost L");
