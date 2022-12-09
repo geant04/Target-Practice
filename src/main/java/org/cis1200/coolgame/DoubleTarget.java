@@ -7,7 +7,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static org.cis1200.coolgame.TargetCourt.*;
 
-public class DoubleTarget extends TargetObj{
+public class DoubleTarget extends TargetObj {
 
     public static final int INIT_RAD = 60;
 
@@ -21,6 +21,7 @@ public class DoubleTarget extends TargetObj{
     private double gravity = 0.5;
 
     private BufferedImage ghost; // apparently this is very computation heavy
+
     public DoubleTarget(int px, int py, int vx, int vy) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
@@ -33,11 +34,14 @@ public class DoubleTarget extends TargetObj{
     @Override
     public void draw(Graphics g) {
         int indx = min(1, max(0, hits));
-        g.drawImage(doublefiles[indx], this.getPx() - getRadius()/2, this.getPy() - getRadius()/2,
-                this.getRadius(), this.getRadius(), null);
+        g.drawImage(
+                doublefiles[indx], this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
+                this.getRadius(), this.getRadius(), null
+        );
     }
+
     @Override
-    public boolean isHit(int x, int y){
+    public boolean isHit(int x, int y) {
         int px = getPx();
         int py = getPy();
         int radius = getRadius();
@@ -48,21 +52,22 @@ public class DoubleTarget extends TargetObj{
 
         boolean hitDub = false;
 
-        if(dist <= radius){
-            if(hits == 0){
+        if (dist <= radius) {
+            if (hits == 0) {
                 System.out.println("pow");
                 gravity = 0.12;
                 setVY(-10); // launch it up a bit
                 setVX(0);
                 hits++;
-            }else{ // assuming hits == 1 now since there are two lives
+            } else { // assuming hits == 1 now since there are two lives
                 hitDub = true;
             }
         }
         return hitDub;
     }
+
     @Override
-    public void move(){
+    public void move() {
         setX((int) (getPx() + getVX()));
         setY((int) (getPy() + getVY()));
         setVY(getVY() + gravity);

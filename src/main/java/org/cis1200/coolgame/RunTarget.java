@@ -9,8 +9,10 @@ public class RunTarget implements Runnable {
     // have an instructions page
     // have a basic level page
     // game loop: every timer (timer changes as the game goes on), a target spawns
-    // update the positions of every target every second, if target.Y < 0 && velocity < 0, -1 life
-    // upon mouse click, loop through all targets, if mouse.pos < the pos < radius of the circle, dub
+    // update the positions of every target every second, if target.Y < 0 &&
+    // velocity < 0, -1 life
+    // upon mouse click, loop through all targets, if mouse.pos < the pos < radius
+    // of the circle, dub
 
     public void run() {
         // NOTE : recall that the 'final' keyword notes immutability even for
@@ -52,4 +54,3 @@ public class RunTarget implements Runnable {
         court.reset();
     }
 }
-

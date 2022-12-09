@@ -4,7 +4,7 @@ import java.awt.*;
 
 import static org.cis1200.coolgame.TargetCourt.img;
 
-public class Plate extends TargetObj{
+public class Plate extends TargetObj {
 
     public static final int INIT_RAD = 10;
 
@@ -13,14 +13,15 @@ public class Plate extends TargetObj{
     public static final int INIT_VEL_X = 0;
     public static final int INIT_VEL_Y = 30;
 
-
     public Plate(int px, int py, double vx, double vy, int RAD) {
         super(px, py, RAD, vx, vy);
     }
 
     @Override
     public void draw(Graphics g) {
-        g.drawRect(this.getPx() - getRadius()/2, this.getPy() - getRadius()/2,
-                getRadius(), getRadius());
+        g.drawRect(
+                this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
+                getRadius(), getRadius()
+        );
     }
 }

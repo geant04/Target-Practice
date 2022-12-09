@@ -1,4 +1,5 @@
 package org.cis1200.coolgame;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,7 +10,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static org.cis1200.coolgame.TargetCourt.*;
 
-public class Ghost extends TargetObj{
+public class Ghost extends TargetObj {
 
     public static final int INIT_RAD = 60;
 
@@ -21,6 +22,7 @@ public class Ghost extends TargetObj{
     public static double maxV = -1;
 
     private BufferedImage ghost; // apparently this is very computation heavy
+
     public Ghost(int px, int py, int vx, int vy) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
@@ -34,23 +36,26 @@ public class Ghost extends TargetObj{
     public void draw(Graphics g) {
         int indx = Math.min(returnState(getVY()), 3);
 
-        if(indx >= 0){
+        if (indx >= 0) {
             ghost = ghostfiles[indx];
 
-            g.drawImage(ghost, this.getPx() - getRadius()/2, this.getPy() - getRadius()/2,
-                    this.getRadius(), this.getRadius(), null);
+            g.drawImage(
+                    ghost, this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
+                    this.getRadius(), this.getRadius(), null
+            );
         }
     }
 
     @Override
-    public void move(){
+    public void move() {
         setX((int) (getPx() + getVX()));
         setY((int) (getPy() + getVY()));
         setVY(getVY() + 0.5);
     }
 
-    public int returnState(double vy){
-        double normalized = (vy + maxV)/(2 * maxV);
-        return (int) Math.floor(normalized * 6) - 1; // -1 because if it's at 0, then there shouldn't be a texture
+    public int returnState(double vy) {
+        double normalized = (vy + maxV) / (2 * maxV);
+        return (int) Math.floor(normalized * 6) - 1; // -1 because if it's at 0, then there
+                                                     // shouldn't be a texture
     }
 }

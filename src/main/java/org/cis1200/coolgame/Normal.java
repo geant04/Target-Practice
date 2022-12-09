@@ -1,9 +1,10 @@
 package org.cis1200.coolgame;
+
 import java.awt.*;
 
 import static org.cis1200.coolgame.TargetCourt.img;
 
-public class Normal extends TargetObj{
+public class Normal extends TargetObj {
 
     public static final int INIT_RAD = 60;
 
@@ -16,24 +17,26 @@ public class Normal extends TargetObj{
         super(px, py, INIT_RAD, vx, vy);
 
         /*
-        try {
-            if (img == null) {
-                img = ImageIO.read(new File(path));
-            }
-        } catch (IOException e) {
-            System.out.println("Internal Error:" + e.getMessage());
-        }
+         * try {
+         * if (img == null) {
+         * img = ImageIO.read(new File(path));
+         * }
+         * } catch (IOException e) {
+         * System.out.println("Internal Error:" + e.getMessage());
+         * }
          */
     }
 
     @Override
     public void draw(Graphics g) {
 
-        //g.setColor(this.color);
-        //g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
+        // g.setColor(this.color);
+        // g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
 
-        g.drawImage(img, this.getPx() - getRadius()/2, this.getPy() - getRadius()/2,
-                this.getRadius(), this.getRadius(), null);
+        g.drawImage(
+                img, this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
+                this.getRadius(), this.getRadius(), null
+        );
 
     }
 }

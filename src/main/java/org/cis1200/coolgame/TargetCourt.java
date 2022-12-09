@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 
-public class TargetCourt extends JPanel{
+public class TargetCourt extends JPanel {
 
-    //------------- store all your stuff above this line
+    // ------------- store all your stuff above this line
 
     private boolean run = false;
     private final JLabel status;
@@ -26,17 +26,17 @@ public class TargetCourt extends JPanel{
     private JLabel streak_label;
 
     public static String[] tips = {
-            "eat lots of corn",
-            "clicking the target makes you win",
-            "get good",
-            "get good aim",
-            "have u tried using a better chair",
-            "idk i forgot",
-            "try to avoid hill dining",
-            "click the target",
-            "clicc",
-            "thank you lord swap",
-            "i coded this game badly so try aiming below the targets"
+        "eat lots of corn",
+        "clicking the target makes you win",
+        "get good",
+        "get good aim",
+        "have u tried using a better chair",
+        "idk i forgot",
+        "try to avoid hill dining",
+        "click the target",
+        "clicc",
+        "thank you lord swap",
+        "i coded this game badly so try aiming below the targets"
     };
 
     public static final int COURT_WIDTH = 600;
@@ -44,7 +44,6 @@ public class TargetCourt extends JPanel{
     public static int lives = 5;
     public static int score = 0;
     public static int streak = 0;
-
 
     // Update interval for timer, in milliseconds
     public static final int TICK_RATE = 15;
@@ -59,19 +58,21 @@ public class TargetCourt extends JPanel{
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Point> targetpoints = new ArrayList<>();
 
+    public final String funnybg = "files/think.png";
     public static final String IMG_FILE = "files/target.png";
     public static final String FAST_FILE = "files/fasttarget.png";
     public static BufferedImage img;
     public static BufferedImage fastimg;
+    public static BufferedImage bg_img;
     public static String[] textures = {
-            "files/ghosttarget4.png",
-            "files/ghosttarget3.png",
-            "files/ghosttarget2.png",
-            "files/ghosttarget.png"
+        "files/ghosttarget4.png",
+        "files/ghosttarget3.png",
+        "files/ghosttarget2.png",
+        "files/ghosttarget.png"
     };
     public static String[] doubletexts = {
-            "files/doubletarget1.png",
-            "files/doubletarget2.png"
+        "files/doubletarget1.png",
+        "files/doubletarget2.png"
     };
     public static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
     public static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
@@ -91,8 +92,10 @@ public class TargetCourt extends JPanel{
         setLayout(null);
 
         announce_label = new JLabel("prepare to FIGHT");
-        helpful_tip = new JLabel("tip: " +
-                tips[(int) Math.floor(Math.random() * tips.length)]);
+        helpful_tip = new JLabel(
+                "tip: " +
+                        tips[(int) Math.floor(Math.random() * tips.length)]
+        );
         score_label = new JLabel("score: " + score);
         live_label = new JLabel("lives: " + lives);
         streak_label = new JLabel("streak: " + streak);
@@ -118,8 +121,12 @@ public class TargetCourt extends JPanel{
         live_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
         live_label.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
 
-
         add(live_label);
+
+        JLabel the = new JLabel();
+        the.setIcon(new ImageIcon(IMG_FILE));
+        add(the);
+
         try {
             shoot_clip = AudioSystem.getClip();
             shoot = AudioSystem.getAudioInputStream(new File(impressive_path));
@@ -135,12 +142,13 @@ public class TargetCourt extends JPanel{
             if (img == null) {
                 img = ImageIO.read(new File(IMG_FILE));
                 fastimg = ImageIO.read(new File(FAST_FILE));
-                for(int i=0; i< textures.length; i++){
+                for (int i = 0; i < textures.length; i++) {
                     ghostfiles[i] = ImageIO.read(new File(textures[i]));
                 }
-                for(int i=0; i< doubletexts.length; i++){
+                for (int i = 0; i < doubletexts.length; i++) {
                     doublefiles[i] = ImageIO.read(new File(doubletexts[i]));
                 }
+                bg_img = ImageIO.read(new File("files/think.png"));
             }
         } catch (IOException e) {
             System.out.println("Internal Error:" + e.getMessage());
@@ -156,19 +164,15 @@ public class TargetCourt extends JPanel{
 
         this.status = status;
         bgm.setFramePosition(0);
-        //bgm.start();
+        bgm.start();
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(run){ // make sure we don't do anything funny if we lose
-                    System.out.println("mouse_click");
+                if (run) { // make sure we don't do anything funny if we lose
                     Point p = e.getPoint();
 
-                    //targetstoRemove = new ArrayList<TargetObj>();
                     points = new ArrayList<>();
-                    targetpoints = new ArrayList<>();
-
                     // updates the model given the coordinates of the mouseclick
                     points.add(p);
 
@@ -176,19 +180,19 @@ public class TargetCourt extends JPanel{
                     int targets_hit = 0;
                     String msg = "";
 
-                    for(TargetObj target : targets){
+                    for (TargetObj target : targets) {
                         int tx = target.getPx();
                         int ty = target.getPy();
 
                         targetpoints.add(new Point(tx, ty));
-                        if(target.isHit(p.x , p.y)){
+                        if (target.isHit(p.x, p.y)) {
                             System.out.println("Hit!");
                             targetstoRemove.add(target);
                             targets_hit++;
                         }
                     }
 
-                    for(TargetObj target_bye : targetstoRemove){
+                    for (TargetObj target_bye : targetstoRemove) {
                         score++;
                         streak++;
 
@@ -196,25 +200,25 @@ public class TargetCourt extends JPanel{
                         int ty = target_bye.getPy();
                         int rad = target_bye.getRadius();
 
-                        int bits = (int)Math.floor(Math.random() * 3 ) + 3;
+                        int bits = (int) Math.floor(Math.random() * 2) + 2;
 
-                        for(int i=0; i<bits; i++){ // make the plate shatter
-                            double vy = Math.random()*10 + 2;
-                            double vx = Math.random()*10 + target_bye.getVX() - 5;
+                        for (int i = 0; i < bits; i++) { // make the plate shatter
+                            double vy = Math.random() * 10 + 2;
+                            double vx = Math.random() * 10 + target_bye.getVX() - 5;
 
                             TargetObj bit = new Plate(tx, ty, vx, vy, rad / bits);
                             details.add(bit);
                         }
                         targets.remove(target_bye);
 
-                        if(streak % 5 == 0){
+                        if (streak % 5 == 0) {
                             streak_label.setForeground(Color.ORANGE);
                             shoot_clip.setFramePosition(0);
                             shoot_clip.start();
                         }
                     }
                     msg = "Score : " + score;
-                    if(targets_hit > 1){
+                    if (targets_hit > 1) {
                         msg += "; Collat! Nice!";
                     }
                     updateStatus(msg); // updates the status JLabel
@@ -245,8 +249,10 @@ public class TargetCourt extends JPanel{
         run = true;
 
         announce_label.setText("prepare to FIGHT");
-        helpful_tip.setText("tip: " +
-                tips[(int) Math.floor(Math.random() * tips.length)]);
+        helpful_tip.setText(
+                "tip: " +
+                        tips[(int) Math.floor(Math.random() * tips.length)]
+        );
         score_label.setText("score: " + score);
         live_label.setText("lives: " + lives);
         streak_label.setText("streak: " + streak);
@@ -260,104 +266,113 @@ public class TargetCourt extends JPanel{
         requestFocusInWindow();
     }
 
-    public static synchronized void play(String song_path){
-        //new Thread(new Runnable() {
-            //public void run() {
-                try {
-                    Clip clip = AudioSystem.getClip();
-                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(song_path));
-                    clip.open(inputStream);
-                    clip.start();
-                } catch (Exception e) {
-                }
-            //}
-        //}).start();
+    public static synchronized void play(String song_path) {
+        // new Thread(new Runnable() {
+        // public void run() {
+        try {
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(song_path));
+            clip.open(inputStream);
+            clip.start();
+        } catch (Exception e) {
+        }
+        // }
+        // }).start();
     }
 
-    void tick(){
+    void tick() {
         if (run) {
             repaint();
 
-            SPAWN_RATE = (int) (100 + -(Math.log(netTime/100+1) / Math.log(2)) );
-            FUNNY_RATE = 0.5*Math.pow(-0.1*netTime/100 - 1, -1) + 0.5;
+            SPAWN_RATE = (int) (100 + -(Math.log(netTime / 100 + 1) / Math.log(2)));
+            FUNNY_RATE = 0.5 * Math.pow(-0.1 * netTime / 100 - 1, -1) + 0.5;
 
             time++;
             netTime++;
-            
+
             movestuff(targets);
             movestuff(details);
 
-            if(time >= SPAWN_RATE){
+            if (time >= SPAWN_RATE) {
                 spawn();
                 time = 0;
             }
             // update the display
         }
     }
+
     private void movestuff(ArrayList<TargetObj> master) {
         var toRemove = new ArrayList<TargetObj>();
-        for(TargetObj obj : master){
+        for (TargetObj obj : master) {
             obj.move();
-            if(obj.getPy() > COURT_WIDTH && obj.getVY() >= 0){
+            if (obj.getPy() > COURT_WIDTH && obj.getVY() >= 0) {
                 toRemove.add(obj);
             }
         }
-        for(TargetObj obj_gone : toRemove){
+        for (TargetObj obj_gone : toRemove) {
             master.remove(obj_gone);
-            if(!(obj_gone instanceof Plate)){
+            if (!(obj_gone instanceof Plate)) {
                 lives--;
                 streak = 0;
                 live_label.setText("lives: " + lives);
                 streak_label.setText("streak: " + streak);
                 streak_label.setForeground(Color.BLACK);
 
-                if(lives <= 0){
+                if (lives <= 0) {
                     run = false;
                     announce_label.setText("you lost L");
                 }
             }
         }
     }
-    public TargetObj returnTarget(double chance, int x, int y, int vx, int vy){
-        if(chance < FUNNY_RATE * 0.4) return new Fast(x,y, vx, vy*1.3);
-        if(chance < FUNNY_RATE * 0.7) return new DoubleTarget(x,y, vx, vy);
-        if(chance < FUNNY_RATE) return new Ghost(x,y, vx, vy);
-        return new Normal(x,y,vx,vy);
+
+    public TargetObj returnTarget(double chance, int x, int y, int vx, int vy) {
+        if (chance < FUNNY_RATE * 0.4)
+            return new Fast(x, y, vx, vy * 1.3);
+        if (chance < FUNNY_RATE * 0.7)
+            return new DoubleTarget(x, y, vx, vy);
+        if (chance < FUNNY_RATE)
+            return new Ghost(x, y, vx, vy);
+        return new Normal(x, y, vx, vy);
     }
-    void spawn(){
+
+    void spawn() {
         double chance = Math.random();
         TargetObj newTarget = null;
 
-        int rand_x = (int)Math.floor(Math.random() * COURT_WIDTH);
+        int rand_x = (int) Math.floor(Math.random() * COURT_WIDTH);
         int vx = 2;
-        int vy = (int)Math.floor(Math.random() * 12 + 12);
+        int vy = (int) Math.floor(Math.random() * 12 + 12);
         int pos_y = COURT_HEIGHT;
 
-        if(rand_x > COURT_WIDTH/2){
+        if (rand_x > COURT_WIDTH / 2) {
             vx *= -1;
         }
 
         newTarget = returnTarget(chance, rand_x, pos_y, vx, vy);
 
-        if(newTarget != null){
+        if (newTarget != null) {
             targets.add(newTarget);
         }
     }
-    void updateStatus(String msg){
+
+    void updateStatus(String msg) {
         status.setText(msg);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for(TargetObj target : targets){
+        //g.drawImage(bg_img, 0, 0, bg_img.getWidth(), bg_img.getHeight() * 2, null);
+
+        for (TargetObj target : targets) {
             target.draw(g);
         }
-        for(TargetObj bit : details){
+        for (TargetObj bit : details) {
             bit.draw(g);
         }
-        for(Point p : points){
-            g.drawOval(p.x, p.y, 5,5);
+        for (Point p : points) {
+            g.drawOval(p.x, p.y, 5, 5);
         }
     }
 
