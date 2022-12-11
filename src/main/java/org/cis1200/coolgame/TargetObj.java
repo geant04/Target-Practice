@@ -8,8 +8,8 @@ public abstract class TargetObj {
     private int radius;
     private double vx;
     private double vy;
-
     private double g = 0.5;
+    private int type = 0;
 
     public TargetObj(
             int px, int py, int radius, double vx, double vy
@@ -62,6 +62,9 @@ public abstract class TargetObj {
     public void setRadius(int r) {
         this.radius = r;
     }
+
+    public void setType(int t){this.type = t;}
+    public int getType(){return this.type;}
 
     // stuff that updates stuff
     public void move() {

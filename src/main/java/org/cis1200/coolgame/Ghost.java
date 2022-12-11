@@ -26,6 +26,7 @@ public class Ghost extends TargetObj {
     public Ghost(int px, int py, int vx, int vy) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
+        this.setType(2);
 
         if (ghost == null) {
             ghost = ghostfiles[0];

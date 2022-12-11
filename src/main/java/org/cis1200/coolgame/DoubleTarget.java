@@ -22,9 +22,10 @@ public class DoubleTarget extends TargetObj {
 
     private BufferedImage ghost; // apparently this is very computation heavy
 
-    public DoubleTarget(int px, int py, int vx, int vy) {
+    public DoubleTarget(int px, int py, int vx, int vy, int h) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
+        setType((h>0) ? -4 : 4);
 
         if (ghost == null) {
             ghost = ghostfiles[0];
@@ -58,6 +59,7 @@ public class DoubleTarget extends TargetObj {
                 gravity = 0.12;
                 setVY(-10); // launch it up a bit
                 setVX(0);
+                setType(-4);
                 hits++;
             } else { // assuming hits == 1 now since there are two lives
                 hitDub = true;

@@ -11,7 +11,7 @@ public class Fast extends TargetObj {
 
     public Fast(int px, int py, double vx, double vy) {
         super(px, py, INIT_RAD, vx, vy);
-
+        this.setType(3);
         /*
          * try {
          * if (img == null) {

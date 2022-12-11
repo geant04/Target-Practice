@@ -8,10 +8,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Target;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import static java.lang.Math.max;
 
 public class TargetCourt extends JPanel {
 
@@ -45,6 +50,9 @@ public class TargetCourt extends JPanel {
     public static int score = 0;
     public static int streak = 0;
 
+    public static int highscore = 0;
+    public static int highstreak = 0;
+
     // Update interval for timer, in milliseconds
     public static final int TICK_RATE = 15;
     public static final int INIT_SPAWN_RATE = 100;
@@ -57,6 +65,8 @@ public class TargetCourt extends JPanel {
     private ArrayList<TargetObj> details = new ArrayList<TargetObj>();
     private ArrayList<Point> points = new ArrayList<>();
     private ArrayList<Point> targetpoints = new ArrayList<>();
+
+    // images
 
     public final String funnybg = "files/think.png";
     public static final String IMG_FILE = "files/target.png";
@@ -77,7 +87,7 @@ public class TargetCourt extends JPanel {
     public static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
     public static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
 
-    //
+    //---- audio
     public static AudioInputStream shoot;
     public static AudioInputStream bgm_audio;
     public static Clip shoot_clip;
@@ -87,6 +97,10 @@ public class TargetCourt extends JPanel {
     public static String impressive_path = "files/impressive.wav";
     public static String pew_path = "files/pew.wav";
     public static String bgm_path = "files/bgm.wav";
+
+    // --- save file location
+
+    public static final String save_path = "save/state.txt";
 
     public TargetCourt(JLabel status) {
         setLayout(null);
@@ -153,14 +167,7 @@ public class TargetCourt extends JPanel {
         } catch (IOException e) {
             System.out.println("Internal Error:" + e.getMessage());
         }
-        // creates border around the court area, JComponent method
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-        // The timer is an object which triggers an action periodically with the
-        // given INTERVAL. We register an ActionListener with this timer, whose
-        // actionPerformed() method is called each time the timer triggers. We
-        // define a helper method called tick() that actually does everything
-        // that should be done in a single time step.
 
         this.status = status;
         bgm.setFramePosition(0);
@@ -195,6 +202,9 @@ public class TargetCourt extends JPanel {
                     for (TargetObj target_bye : targetstoRemove) {
                         score++;
                         streak++;
+
+                        highscore = max(highscore, score);
+                        highstreak = max(highstreak, streak);
 
                         int tx = target_bye.getPx();
                         int ty = target_bye.getPy();
@@ -266,18 +276,65 @@ public class TargetCourt extends JPanel {
         requestFocusInWindow();
     }
 
-    public static synchronized void play(String song_path) {
-        // new Thread(new Runnable() {
-        // public void run() {
-        try {
-            Clip clip = AudioSystem.getClip();
-            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File(song_path));
-            clip.open(inputStream);
-            clip.start();
-        } catch (Exception e) {
+    public void SaveGame(){
+        // keybind "s" should save the game
+
+        File file = new File(save_path);
+        BufferedWriter bw;
+        try{
+            // 1. Log lives, streak, score, highest streak, highest score (can be done by a single line)
+            // 2. Log in-game time, net time, run (same format as first, rates depend on time)
+            // 3. Log target positions (each line for each target)
+            // 4. Log detail positions (each line for detail pos)
+            // first line format: int ; (separated by ;)
+            // ex: 3;4;25;34;52
+            // second
+            // target types:
+            //      1: default
+            //      2: ghost
+            //      3: fast
+            //      4: double-1
+            //      -4: double-2
+            //      5: etc....???
+
+            // 2,3 format: # for target type -- followed by ";", each part after represents data
+            // ex: 1;(x,y,vx,vy)
+            // ex: 0;(x,y,vx,vy)
+
+            if(!file.createNewFile()){
+                file = Paths.get(save_path).toFile();
+            }
+            bw = new BufferedWriter(new FileWriter(file));
+
+            String scores = lives+";"+streak+";"+score+";"+highscore+";"+highstreak+"\n";
+            String ingame_data = time+";"+netTime+";"+run+"\n";
+
+            bw.write(scores);
+            bw.write(ingame_data);
+
+            for(TargetObj t : targets){
+                String line = "";
+                int type = t.getType();
+                int x = t.getPx();
+                int y = t.getPy();
+                double vx = t.getVX();
+                double vy = t.getVY();
+
+                line += type + ";" + x + ";" + y + ";"
+                        + String.valueOf(vx) + ";"
+                        + String.valueOf(vy) + "\n";
+                if(line != null){
+                    bw.write(line);
+                }
+            }
+            bw.close();
+        } catch (IOException e) {
         }
-        // }
-        // }).start();
+    }
+
+    public void LoadGame(){
+        // keybind "l" should load the game
+        
     }
 
     void tick() {
@@ -330,7 +387,7 @@ public class TargetCourt extends JPanel {
         if (chance < FUNNY_RATE * 0.4)
             return new Fast(x, y, vx, vy * 1.3);
         if (chance < FUNNY_RATE * 0.7)
-            return new DoubleTarget(x, y, vx, vy);
+            return new DoubleTarget(x, y, vx, vy, 0);
         if (chance < FUNNY_RATE)
             return new Ghost(x, y, vx, vy);
         return new Normal(x, y, vx, vy);

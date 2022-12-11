@@ -15,7 +15,7 @@ public class Normal extends TargetObj {
 
     public Normal(int px, int py, int vx, int vy) {
         super(px, py, INIT_RAD, vx, vy);
-
+        this.setType(1);
         /*
          * try {
          * if (img == null) {
