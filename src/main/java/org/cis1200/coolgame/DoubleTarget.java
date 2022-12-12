@@ -25,7 +25,11 @@ public class DoubleTarget extends TargetObj {
     public DoubleTarget(int px, int py, double vx, double vy, int h) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
+        hits = h;
         setType((h>0) ? -4 : 4);
+        if(h > 0){
+            gravity = 0.12;
+        }
 
         if (ghost == null) {
             ghost = ghostfiles[0];

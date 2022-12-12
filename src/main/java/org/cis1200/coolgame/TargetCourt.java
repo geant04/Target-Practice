@@ -4,6 +4,8 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Point;
@@ -183,6 +185,7 @@ public class TargetCourt extends JPanel {
         bgm.setFramePosition(0);
         bgm.start();
 
+
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -262,6 +265,8 @@ public class TargetCourt extends JPanel {
 
     public void reset() {
         targets = new ArrayList<TargetObj>();
+        details = new ArrayList<TargetObj>();
+
         lives = 5;
         score = 0;
         streak = 0;
@@ -276,6 +281,7 @@ public class TargetCourt extends JPanel {
                 "tip: " +
                         tips[(int) Math.floor(Math.random() * tips.length)]
         );
+
         score_label.setText("score: " + score);
         live_label.setText("lives: " + lives);
         streak_label.setText("streak: " + streak);
@@ -324,7 +330,11 @@ public class TargetCourt extends JPanel {
             bw.write(scores);
             bw.write(ingame_data);
 
-            for(TargetObj t : targets){
+            ArrayList<TargetObj> objs = new ArrayList<>();
+            objs.addAll(targets);
+            objs.addAll(details);
+
+            for(TargetObj t : objs){
                 String line = "";
                 int type = t.getType();
                 int x = t.getPx();
@@ -348,6 +358,8 @@ public class TargetCourt extends JPanel {
 
     public void LoadGame(){
         // keybind "l" should load the game
+        reset();
+
         File file = Paths.get(save_path).toFile();
         try{
             BufferedReader r = new BufferedReader(new FileReader(file));
@@ -446,7 +458,7 @@ public class TargetCourt extends JPanel {
 
     public TargetObj loadTarget(int type, int x, int y, int rad, double vx, double vy, double mv) {
         if (type == 0)
-            return new Plate(x,y,vx,vy,rad);
+            return new Plate(x,y,vx,vy*-1,rad);
         if (type == 1)
             return new Normal(x, y, vx, vy);
         if (type == 2)
