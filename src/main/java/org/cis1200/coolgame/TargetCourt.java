@@ -105,7 +105,7 @@ public class TargetCourt extends JPanel {
 
     public static final String save_path = "save/state.txt";
 
-    public TargetCourt(JLabel status) {
+    public TargetCourt(JLabel status, boolean reset) {
         setLayout(null);
 
         announce_label = new JLabel("prepare to FIGHT");
@@ -177,7 +177,7 @@ public class TargetCourt extends JPanel {
                 bg_img = ImageIO.read(new File("files/think.png"));
             }
         } catch (IOException e) {
-            System.out.println("Internal Error:" + e.getMessage());
+            //System.out.println("Internal Error:" + e.getMessage());
         }
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -255,7 +255,10 @@ public class TargetCourt extends JPanel {
             }
         });
 
-        LoadGame(true);
+        if(!reset){
+            LoadGame(true);
+        }
+
         Timer timer = new Timer(TICK_RATE, e -> tick());
         timer.start(); // MAKE SURE TO START THE TIMER!
 
@@ -295,7 +298,9 @@ public class TargetCourt extends JPanel {
         // Make sure that this component has the keyboard focus
         requestFocusInWindow();
     }
-
+    public boolean isPlaying(){
+        return run;
+    }
     public void SaveGame(){
         // keybind "s" should save the game
 
@@ -410,9 +415,17 @@ public class TargetCourt extends JPanel {
         repaint(); // repaints the game board
     }
     public void loaditem(int indx, String data){
+        if(data == null || data.isEmpty()){
+            return;
+        }
+
         String[] parsed_data = data.split(";");
         int len = parsed_data.length;
         int[] intdata = new int[len];
+
+        if(len <= 4 || len > 7){
+            return;
+        }
 
         if(indx == 0){
             for(int i=0; i < len; i++){
@@ -457,6 +470,18 @@ public class TargetCourt extends JPanel {
             }
             targets.add(new_obj);
         }
+    }
+
+    public ArrayList<TargetObj> returntargs(){
+        ArrayList<TargetObj> encaps = targets;
+        return encaps;
+    }
+    public ArrayList<TargetObj> returndets(){
+        ArrayList<TargetObj> encaps = details;
+        return encaps;
+    }
+    public void addTarget(TargetObj obj){
+        targets.add(obj);
     }
 
     public TargetObj loadTarget(int type, int x, int y, int rad, double vx, double vy, double mv) {

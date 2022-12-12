@@ -30,7 +30,7 @@ public class RunTarget implements Runnable {
         status_panel.add(status);
 
         // Main playing area
-        final TargetCourt court = new TargetCourt(status);
+        final TargetCourt court = new TargetCourt(status, false);
         frame.add(court, BorderLayout.CENTER);
 
         // Reset button
