@@ -13,7 +13,7 @@ public class Normal extends TargetObj {
     public static final int INIT_VEL_X = 0;
     public static final int INIT_VEL_Y = 30;
 
-    public Normal(int px, int py, int vx, int vy) {
+    public Normal(int px, int py, double vx, double vy) {
         super(px, py, INIT_RAD, vx, vy);
         this.setType(1);
         /*

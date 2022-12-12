@@ -15,6 +15,7 @@ public class Plate extends TargetObj {
 
     public Plate(int px, int py, double vx, double vy, int RAD) {
         super(px, py, RAD, vx, vy);
+        this.setType(0);
     }
 
     @Override

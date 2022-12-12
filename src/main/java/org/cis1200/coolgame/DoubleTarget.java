@@ -22,7 +22,7 @@ public class DoubleTarget extends TargetObj {
 
     private BufferedImage ghost; // apparently this is very computation heavy
 
-    public DoubleTarget(int px, int py, int vx, int vy, int h) {
+    public DoubleTarget(int px, int py, double vx, double vy, int h) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
         setType((h>0) ? -4 : 4);

@@ -45,6 +45,14 @@ public class RunTarget implements Runnable {
         reset.addActionListener(e -> court.reset());
         control_panel.add(reset);
 
+        final JButton save = new JButton("Save");
+        save.addActionListener(e -> court.SaveGame());
+        control_panel.add(save);
+
+        final JButton load = new JButton("Load");
+        load.addActionListener(e -> court.LoadGame());
+        control_panel.add(load);
+
         // Put the frame on the screen
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

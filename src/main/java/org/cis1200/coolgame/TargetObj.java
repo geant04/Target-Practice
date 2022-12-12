@@ -8,6 +8,7 @@ public abstract class TargetObj {
     private int radius;
     private double vx;
     private double vy;
+    private double maxV;
     private double g = 0.5;
     private int type = 0;
 
@@ -16,6 +17,7 @@ public abstract class TargetObj {
     ) {
         this.px = px;
         this.py = py;
+        this.maxV = vy;
         this.radius = radius;
         this.vx = vx;
         this.vy = -1 * vy; // assume that vy positive means it's going up
@@ -58,10 +60,8 @@ public abstract class TargetObj {
     public void setVY(double vy) {
         this.vy = vy;
     }
-
-    public void setRadius(int r) {
-        this.radius = r;
-    }
+    public void setMaxV(double maxV) {this.maxV = maxV;}
+    public double getMaxV(){return this.maxV;}
 
     public void setType(int t){this.type = t;}
     public int getType(){return this.type;}

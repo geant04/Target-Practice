@@ -8,13 +8,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.annotation.Target;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static java.lang.Math.max;
 
@@ -29,6 +28,8 @@ public class TargetCourt extends JPanel {
     private JLabel live_label;
     private JLabel score_label;
     private JLabel streak_label;
+    private JLabel hs_label;
+    private JLabel hstreak_label;
 
     public static String[] tips = {
         "eat lots of corn",
@@ -113,6 +114,8 @@ public class TargetCourt extends JPanel {
         score_label = new JLabel("score: " + score);
         live_label = new JLabel("lives: " + lives);
         streak_label = new JLabel("streak: " + streak);
+        hs_label = new JLabel("highscore: " + highscore);
+        hstreak_label = new JLabel("high streak: " + highstreak);
 
         announce_label.setFont(new Font("Papyrus", Font.PLAIN, 60));
         announce_label.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
@@ -121,6 +124,14 @@ public class TargetCourt extends JPanel {
         helpful_tip.setFont(new Font("Papyrus", Font.PLAIN, 20));
         helpful_tip.setBounds(0, -190, COURT_WIDTH, COURT_HEIGHT);
         add(helpful_tip);
+
+        hstreak_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        hstreak_label.setBounds(0, -120, COURT_WIDTH, COURT_HEIGHT);
+        add(hstreak_label);
+
+        hs_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        hs_label.setBounds(0, -90, COURT_WIDTH, COURT_HEIGHT);
+        add(hs_label);
 
         streak_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
         streak_label.setBounds(0, -50, COURT_WIDTH, COURT_HEIGHT);
@@ -134,7 +145,6 @@ public class TargetCourt extends JPanel {
         live_label.setText("lives: " + lives);
         live_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
         live_label.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
-
         add(live_label);
 
         JLabel the = new JLabel();
@@ -234,6 +244,9 @@ public class TargetCourt extends JPanel {
                     updateStatus(msg); // updates the status JLabel
                     score_label.setText("score: " + score);
                     streak_label.setText("streak: " + streak);
+                    hs_label.setText("highscore: " + highscore);
+                    hstreak_label.setText("high streak: " + highstreak);
+
                     repaint(); // repaints the game board
                 }
             }
@@ -284,8 +297,7 @@ public class TargetCourt extends JPanel {
         try{
             // 1. Log lives, streak, score, highest streak, highest score (can be done by a single line)
             // 2. Log in-game time, net time, run (same format as first, rates depend on time)
-            // 3. Log target positions (each line for each target)
-            // 4. Log detail positions (each line for detail pos)
+            // 3. Log target and detail positions (each line for each target)
             // first line format: int ; (separated by ;)
             // ex: 3;4;25;34;52
             // second
@@ -298,8 +310,8 @@ public class TargetCourt extends JPanel {
             //      5: etc....???
 
             // 2,3 format: # for target type -- followed by ";", each part after represents data
-            // ex: 1;(x,y,vx,vy)
-            // ex: 0;(x,y,vx,vy)
+            // ex: 1;x;y;rad;vx;vy
+            //
 
             if(!file.createNewFile()){
                 file = Paths.get(save_path).toFile();
@@ -307,7 +319,7 @@ public class TargetCourt extends JPanel {
             bw = new BufferedWriter(new FileWriter(file));
 
             String scores = lives+";"+streak+";"+score+";"+highscore+";"+highstreak+"\n";
-            String ingame_data = time+";"+netTime+";"+run+"\n";
+            String ingame_data = time+";"+netTime+";"+(run ? 1:0)+"\n"; // convert bool to int to make it easier
 
             bw.write(scores);
             bw.write(ingame_data);
@@ -318,14 +330,16 @@ public class TargetCourt extends JPanel {
                 int x = t.getPx();
                 int y = t.getPy();
                 double vx = t.getVX();
-                double vy = t.getVY();
+                double vy = t.getVY() * -1;
+                double maxV = t.getMaxV();
+                int rad = t.getRadius();
 
-                line += type + ";" + x + ";" + y + ";"
+                line += type + ";" + x + ";" + y + ";" + rad + ";"
                         + String.valueOf(vx) + ";"
-                        + String.valueOf(vy) + "\n";
-                if(line != null){
-                    bw.write(line);
-                }
+                        + String.valueOf(vy) + ";"
+                        + String.valueOf(maxV) +
+                        "\n";
+                bw.write(line);
             }
             bw.close();
         } catch (IOException e) {
@@ -334,8 +348,118 @@ public class TargetCourt extends JPanel {
 
     public void LoadGame(){
         // keybind "l" should load the game
-        
+        File file = Paths.get(save_path).toFile();
+        try{
+            BufferedReader r = new BufferedReader(new FileReader(file));
+            String line = r.readLine(); // the file shouldn't have any blank lines.
+            while (line != null && line.isEmpty()) {
+                line = r.readLine();
+            } // given that the first line is blank, let's run through until we do find the first line
+            targets = new ArrayList<>();
+            points = new ArrayList<>();
+
+            int indx = 0;
+            String current = line;
+
+            while(line != null){
+                current = line;
+                if(!current.isEmpty()){
+                    loaditem(indx, line);
+                    indx++;
+                }
+                line = r.readLine();
+            }
+
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        score_label.setText("score: " + score);
+        streak_label.setText("streak: " + streak);
+        if(streak >= 5){
+            streak_label.setForeground(Color.ORANGE);
+        }
+        hs_label.setText("highscore: " + highscore);
+        hstreak_label.setText("high streak: " + highstreak);
+        helpful_tip.setText(
+                "tip: " +
+                        tips[(int) Math.floor(Math.random() * tips.length)]
+        );
+        live_label.setText("lives: " + lives);
+
+        if(lives <= 0){
+            announce_label.setText("you lost L");
+        }else{
+            announce_label.setText("prepare to FIGHT");
+        }
+
+        repaint(); // repaints the game board
     }
+    public void loaditem(int indx, String data){
+        String[] parsed_data = data.split(";");
+        int len = parsed_data.length;
+        int[] intdata = new int[len];
+
+        if(indx == 0){
+            for(int i=0; i < len; i++){
+                intdata[i] = Integer.parseInt(parsed_data[i]);
+            }
+            lives = intdata[0];
+            streak = intdata[1];
+            score = intdata[2];
+            highscore = intdata[3];
+            highstreak = intdata[4];
+            return;
+        }
+        if(indx == 1){
+            for(int i=0; i < len; i++){
+                intdata[i] = Integer.parseInt(parsed_data[i]);
+            }
+            time = intdata[0];
+            netTime = intdata[1];
+            run = (intdata[2] == 1);
+            return;
+        }
+        // i think we do other stuff now yes
+        double[] ext = new double[3];
+
+        for(int i=0; i<parsed_data.length; i++){
+            if(i<4){
+                intdata[i] = Integer.parseInt(parsed_data[i]);
+            }else{
+                ext[i-4] = Double.parseDouble(parsed_data[i]);
+            }
+        }
+
+        TargetObj new_obj = loadTarget(
+                intdata[0], intdata[1], intdata[2], intdata[3],
+                ext[0], ext[1], ext[2]
+        );
+        if(new_obj != null){
+            int t = intdata[0];
+            if(t==0){
+                details.add(new_obj);
+                return;
+            }
+            targets.add(new_obj);
+        }
+    }
+
+    public TargetObj loadTarget(int type, int x, int y, int rad, double vx, double vy, double mv) {
+        if (type == 0)
+            return new Plate(x,y,vx,vy,rad);
+        if (type == 1)
+            return new Normal(x, y, vx, vy);
+        if (type == 2)
+            return new Ghost(x, y, vx, vy, mv);
+        if (type == 3)
+            return new Fast(x, y, vx, vy);
+        if (type == 4)
+            return new DoubleTarget(x, y, vx, vy, 0);
+        if (type == -4)
+            return new DoubleTarget(x, y, vx, vy, 1);
+        return null;
+    }
+
 
     void tick() {
         if (run) {
@@ -389,7 +513,7 @@ public class TargetCourt extends JPanel {
         if (chance < FUNNY_RATE * 0.7)
             return new DoubleTarget(x, y, vx, vy, 0);
         if (chance < FUNNY_RATE)
-            return new Ghost(x, y, vx, vy);
+            return new Ghost(x, y, vx, vy, vy); // mv is the same as vy since it just spawned
         return new Normal(x, y, vx, vy);
     }
 

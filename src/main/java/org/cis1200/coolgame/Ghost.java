@@ -23,9 +23,9 @@ public class Ghost extends TargetObj {
 
     private BufferedImage ghost; // apparently this is very computation heavy
 
-    public Ghost(int px, int py, int vx, int vy) {
+    public Ghost(int px, int py, double vx, double vy, double mv) {
         super(px, py, INIT_RAD, vx, vy);
-        maxV = vy;
+        maxV = mv;
         this.setType(2);
 
         if (ghost == null) {
