@@ -13,7 +13,7 @@ public class RunTarget implements Runnable {
     // velocity < 0, -1 life
     // upon mouse click, loop through all targets, if mouse.pos < the pos < radius
     // of the circle, dub
-
+    private boolean gui = false;
     public void run() {
         // NOTE : recall that the 'final' keyword notes immutability even for
         // local variables.
@@ -50,9 +50,12 @@ public class RunTarget implements Runnable {
         control_panel.add(save);
 
         final JButton load = new JButton("Load");
-        load.addActionListener(e -> court.LoadGame());
+        load.addActionListener(e -> court.LoadGame(false));
         control_panel.add(load);
 
+        final JButton instructions = new JButton("Instructions");
+        instructions.addActionListener(e -> makeInstructions());
+        control_panel.add(instructions);
         // Put the frame on the screen
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,5 +63,36 @@ public class RunTarget implements Runnable {
 
         // Start game
         court.reset();
+    }
+
+    public void makeInstructions() {
+        JFrame nFrame = new JFrame("Target Practice Instructions");
+        nFrame.setLocation(300, 300);
+        int w = 800;
+        int h = 250;
+
+        nFrame.setSize(w, h);
+        nFrame.setLayout(new FlowLayout());
+
+        String[] lines = {
+                "Click on the targets as they fly in the sky!",
+                "Use the left mouse button to click, and move your mouse",
+                "to where the targets will land.",
+                "If the targets fall and hit the ground, you lose a life!",
+                "The game ends when you lose all five lives.",
+                "Watch out for different types of targets (normal, ghost, fast, double)!",
+                "You'll know what they do in-game."
+        };
+
+        for (int i = 0; i < lines.length; i++) {
+            JLabel l = new JLabel(lines[i] + "\n");
+            l.setFont(new Font("Papyrus", Font.PLAIN, 20));
+            //l.setBounds(0, init + 20*i, w, h);
+
+            nFrame.add(l);
+        }
+
+        //nFrame.setDefaultCloseOperation(nFrame.EXIT_ON_CLOSE);
+        nFrame.setVisible(true);
     }
 }

@@ -255,6 +255,7 @@ public class TargetCourt extends JPanel {
             }
         });
 
+        LoadGame(true);
         Timer timer = new Timer(TICK_RATE, e -> tick());
         timer.start(); // MAKE SURE TO START THE TIMER!
 
@@ -356,7 +357,7 @@ public class TargetCourt extends JPanel {
         }
     }
 
-    public void LoadGame(){
+    public void LoadGame(boolean def){
         // keybind "l" should load the game
         reset();
 
@@ -380,6 +381,9 @@ public class TargetCourt extends JPanel {
                     indx++;
                 }
                 line = r.readLine();
+                if(def && indx > 1){
+                    break;
+                }
             }
 
         } catch (FileNotFoundException e) {
@@ -403,7 +407,6 @@ public class TargetCourt extends JPanel {
         }else{
             announce_label.setText("prepare to FIGHT");
         }
-
         repaint(); // repaints the game board
     }
     public void loaditem(int indx, String data){
