@@ -1,10 +1,11 @@
 package org.cis1200.coolgame;
 
 import java.awt.*;
-
-import static org.cis1200.coolgame.TargetCourt.img;
+import java.awt.image.BufferedImage;
 
 public class Normal extends TargetObj {
+
+    private BufferedImage img;
 
     public static final int INIT_RAD = 60;
 
@@ -13,9 +14,10 @@ public class Normal extends TargetObj {
     public static final int INIT_VEL_X = 0;
     public static final int INIT_VEL_Y = 30;
 
-    public Normal(int px, int py, double vx, double vy) {
+    public Normal(int px, int py, double vx, double vy, BufferedImage img) {
         super(px, py, INIT_RAD, vx, vy);
         this.setType(1);
+        this.img = img;
         /*
          * try {
          * if (img == null) {

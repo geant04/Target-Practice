@@ -9,6 +9,7 @@ import static org.cis1200.coolgame.TargetCourt.*;
 
 public class DoubleTarget extends TargetObj {
 
+    private BufferedImage[] doublefiles = new BufferedImage[2];
     public static final int INIT_RAD = 60;
 
     public static final int INIT_POS_X = 170;
@@ -16,23 +17,18 @@ public class DoubleTarget extends TargetObj {
     public static final int INIT_VEL_X = 0;
     public static final int INIT_VEL_Y = 30;
 
-    public static double maxV = -1;
+    private double maxV = -1;
     private int hits = 0;
     private double gravity = 0.5;
 
-    private BufferedImage ghost; // apparently this is very computation heavy
-
-    public DoubleTarget(int px, int py, double vx, double vy, int h) {
+    public DoubleTarget(int px, int py, double vx, double vy, int h, BufferedImage[] doublefiles) {
         super(px, py, INIT_RAD, vx, vy);
         maxV = vy;
         hits = h;
-        setType((h>0) ? -4 : 4);
-        if(h > 0){
+        this.doublefiles = doublefiles;
+        setType((h > 0) ? -4 : 4);
+        if (h > 0) {
             gravity = 0.12;
-        }
-
-        if (ghost == null) {
-            ghost = ghostfiles[0];
         }
     }
 
@@ -51,9 +47,9 @@ public class DoubleTarget extends TargetObj {
         int py = getPy();
         int radius = getRadius();
 
-        int x_sq = (x - px) * (x - px);
-        int y_sq = (y - py) * (y - py);
-        double dist = Math.sqrt(x_sq + y_sq);
+        int xSq = (x - px) * (x - px);
+        int ySq = (y - py) * (y - py);
+        double dist = Math.sqrt(xSq + ySq);
 
         boolean hitDub = false;
 

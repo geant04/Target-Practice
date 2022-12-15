@@ -4,18 +4,12 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.annotation.Target;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
 
 import static java.lang.Math.max;
 
@@ -25,15 +19,15 @@ public class TargetCourt extends JPanel {
 
     private boolean run = false;
     private final JLabel status;
-    private JLabel announce_label;
-    private JLabel helpful_tip;
-    private JLabel live_label;
-    private JLabel score_label;
-    private JLabel streak_label;
-    private JLabel hs_label;
-    private JLabel hstreak_label;
+    private JLabel announceLabel;
+    private JLabel helpfulTip;
+    private JLabel liveLabel;
+    private JLabel scoreLabel;
+    private JLabel streakLabel;
+    private JLabel hsLabel;
+    private JLabel hstreakLabel;
 
-    public static String[] tips = {
+    private static String[] tips = {
         "eat lots of corn",
         "clicking the target makes you win",
         "get good",
@@ -49,20 +43,20 @@ public class TargetCourt extends JPanel {
 
     public static final int COURT_WIDTH = 600;
     public static final int COURT_HEIGHT = 600;
-    public static int lives = 5;
-    public static int score = 0;
-    public static int streak = 0;
+    private static int lives = 5;
+    private static int score = 0;
+    private static int streak = 0;
 
-    public static int highscore = 0;
-    public static int highstreak = 0;
+    private static int highscore = 0;
+    private static int highstreak = 0;
 
     // Update interval for timer, in milliseconds
     public static final int TICK_RATE = 15;
     public static final int INIT_SPAWN_RATE = 100;
-    public static int time = 0;
-    public static int netTime = 0;
-    public static int SPAWN_RATE = 100;
-    public static double FUNNY_RATE = 0;
+    private static int time = 0;
+    private static int netTime = 0;
+    private static int spawnRate = 100;
+    private static double funnyRate = 0;
     // this is the rate in which we spawn funny targets instead of normal ones
     private ArrayList<TargetObj> targets = new ArrayList<TargetObj>();
     private ArrayList<TargetObj> details = new ArrayList<TargetObj>();
@@ -71,96 +65,102 @@ public class TargetCourt extends JPanel {
 
     // images
 
-    public final String funnybg = "files/think.png";
-    public static final String IMG_FILE = "files/target.png";
-    public static final String FAST_FILE = "files/fasttarget.png";
-    public static BufferedImage img;
-    public static BufferedImage fastimg;
-    public static BufferedImage bg_img;
-    public static String[] textures = {
+    private static final String IMG_FILE = "files/target.png";
+    private static final String FAST_FILE = "files/fasttarget.png";
+
+    private static BufferedImage img;
+    private static BufferedImage fastimg;
+
+    private static String[] textures = {
         "files/ghosttarget4.png",
         "files/ghosttarget3.png",
         "files/ghosttarget2.png",
         "files/ghosttarget.png"
     };
-    public static String[] doubletexts = {
+    private static String[] doubletexts = {
         "files/doubletarget1.png",
         "files/doubletarget2.png"
     };
-    public static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
-    public static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
+    private static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
+    private static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
 
-    //---- audio
-    public static AudioInputStream shoot;
-    public static AudioInputStream bgm_audio;
-    public static Clip shoot_clip;
-    public static Clip bgm;
+    // ---- audio
+    private AudioInputStream shoot;
+    private AudioInputStream bgmAudio;
+    private Clip shootClip;
+    private Clip bgm;
 
-    public static String s_path = "files/bong.wav";
-    public static String impressive_path = "files/impressive.wav";
-    public static String pew_path = "files/pew.wav";
-    public static String bgm_path = "files/bgm.wav";
+    private String sPath = "files/bong.wav";
+    private String impressivePath = "files/impressive.wav";
+    private String pewPath = "files/pew.wav";
+    private String bgmPath = "files/bgm.wav";
 
     // --- save file location
 
-    public static final String save_path = "save/state.txt";
+    public static final String SAVE_PATH = "files/state.txt";
 
     public TargetCourt(JLabel status, boolean reset) {
         setLayout(null);
 
-        announce_label = new JLabel("prepare to FIGHT");
-        helpful_tip = new JLabel(
+        announceLabel = new JLabel("prepare to FIGHT");
+        helpfulTip = new JLabel(
                 "tip: " +
                         tips[(int) Math.floor(Math.random() * tips.length)]
         );
-        score_label = new JLabel("score: " + score);
-        live_label = new JLabel("lives: " + lives);
-        streak_label = new JLabel("streak: " + streak);
-        hs_label = new JLabel("highscore: " + highscore);
-        hstreak_label = new JLabel("high streak: " + highstreak);
+        scoreLabel = new JLabel("score: " + score);
+        liveLabel = new JLabel("lives: " + lives);
+        streakLabel = new JLabel("streak: " + streak);
+        hsLabel = new JLabel("highscore: " + highscore);
+        hstreakLabel = new JLabel("high streak: " + highstreak);
 
-        announce_label.setFont(new Font("Papyrus", Font.PLAIN, 60));
-        announce_label.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
-        add(announce_label);
+        announceLabel.setFont(new Font("Papyrus", Font.PLAIN, 60));
+        announceLabel.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
+        add(announceLabel);
 
-        helpful_tip.setFont(new Font("Papyrus", Font.PLAIN, 20));
-        helpful_tip.setBounds(0, -190, COURT_WIDTH, COURT_HEIGHT);
-        add(helpful_tip);
+        helpfulTip.setFont(new Font("Papyrus", Font.PLAIN, 20));
+        helpfulTip.setBounds(0, -190, COURT_WIDTH, COURT_HEIGHT);
+        add(helpfulTip);
 
-        hstreak_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        hstreak_label.setBounds(0, -120, COURT_WIDTH, COURT_HEIGHT);
-        add(hstreak_label);
+        hstreakLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        hstreakLabel.setBounds(0, -120, COURT_WIDTH, COURT_HEIGHT);
+        add(hstreakLabel);
 
-        hs_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        hs_label.setBounds(0, -90, COURT_WIDTH, COURT_HEIGHT);
-        add(hs_label);
+        hsLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        hsLabel.setBounds(0, -90, COURT_WIDTH, COURT_HEIGHT);
+        add(hsLabel);
 
-        streak_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        streak_label.setBounds(0, -50, COURT_WIDTH, COURT_HEIGHT);
-        streak_label.setForeground(Color.BLACK);
-        add(streak_label);
+        streakLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        streakLabel.setBounds(0, -50, COURT_WIDTH, COURT_HEIGHT);
+        streakLabel.setForeground(Color.BLACK);
+        add(streakLabel);
 
-        score_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        score_label.setBounds(0, -20, COURT_WIDTH, COURT_HEIGHT);
-        add(score_label);
+        scoreLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        scoreLabel.setBounds(0, -20, COURT_WIDTH, COURT_HEIGHT);
+        add(scoreLabel);
 
-        live_label.setText("lives: " + lives);
-        live_label.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        live_label.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
-        add(live_label);
+        liveLabel.setText("lives: " + lives);
+        liveLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
+        liveLabel.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
+        add(liveLabel);
 
         JLabel the = new JLabel();
         the.setIcon(new ImageIcon(IMG_FILE));
         add(the);
 
         try {
-            shoot_clip = AudioSystem.getClip();
-            shoot = AudioSystem.getAudioInputStream(new File(impressive_path));
-            shoot_clip.open(shoot);
+            shootClip = AudioSystem.getClip();
+            shoot = AudioSystem.getAudioInputStream(new File(impressivePath));
+            shootClip.open(shoot);
+            FloatControl gain = (FloatControl) shootClip.getControl(FloatControl.Type.MASTER_GAIN);
+            gain.setValue(-10.0f);
 
             bgm = AudioSystem.getClip();
-            bgm_audio = AudioSystem.getAudioInputStream(new File(bgm_path));
-            bgm.open(bgm_audio);
+            bgmAudio = AudioSystem.getAudioInputStream(new File(bgmPath));
+            bgm.open(bgmAudio);
+
+            FloatControl gain2 = (FloatControl) bgm.getControl(FloatControl.Type.MASTER_GAIN);
+            gain2.setValue(-10.0f);
+
         } catch (Exception e) {
         }
 
@@ -174,17 +174,15 @@ public class TargetCourt extends JPanel {
                 for (int i = 0; i < doubletexts.length; i++) {
                     doublefiles[i] = ImageIO.read(new File(doubletexts[i]));
                 }
-                bg_img = ImageIO.read(new File("files/think.png"));
             }
         } catch (IOException e) {
-            //System.out.println("Internal Error:" + e.getMessage());
+            // System.out.println("Internal Error:" + e.getMessage());
         }
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         this.status = status;
         bgm.setFramePosition(0);
         bgm.start();
-
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -197,7 +195,7 @@ public class TargetCourt extends JPanel {
                     points.add(p);
 
                     var targetstoRemove = new ArrayList<TargetObj>();
-                    int targets_hit = 0;
+                    int targetsHit = 0;
                     String msg = "";
 
                     for (TargetObj target : targets) {
@@ -208,55 +206,55 @@ public class TargetCourt extends JPanel {
                         if (target.isHit(p.x, p.y)) {
                             System.out.println("Hit!");
                             targetstoRemove.add(target);
-                            targets_hit++;
+                            targetsHit++;
                         }
                     }
 
-                    for (TargetObj target_bye : targetstoRemove) {
+                    for (TargetObj targetBye : targetstoRemove) {
                         score++;
                         streak++;
 
                         highscore = max(highscore, score);
                         highstreak = max(highstreak, streak);
 
-                        int tx = target_bye.getPx();
-                        int ty = target_bye.getPy();
-                        int rad = target_bye.getRadius();
+                        int tx = targetBye.getPx();
+                        int ty = targetBye.getPy();
+                        int rad = targetBye.getRadius();
 
                         int bits = (int) Math.floor(Math.random() * 2) + 2;
 
                         for (int i = 0; i < bits; i++) { // make the plate shatter
                             double vy = Math.random() * 10 + 2;
-                            double vx = Math.random() * 10 + target_bye.getVX() - 5;
+                            double vx = Math.random() * 10 + targetBye.getVX() - 5;
 
                             TargetObj bit = new Plate(tx, ty, vx, vy, rad / bits);
                             details.add(bit);
                         }
-                        targets.remove(target_bye);
+                        targets.remove(targetBye);
 
                         if (streak % 5 == 0) {
-                            streak_label.setForeground(Color.ORANGE);
-                            shoot_clip.setFramePosition(0);
-                            shoot_clip.start();
+                            streakLabel.setForeground(Color.ORANGE);
+                            shootClip.setFramePosition(0);
+                            shootClip.start();
                         }
                     }
                     msg = "Score : " + score;
-                    if (targets_hit > 1) {
+                    if (targetsHit > 1) {
                         msg += "; Collat! Nice!";
                     }
                     updateStatus(msg); // updates the status JLabel
-                    score_label.setText("score: " + score);
-                    streak_label.setText("streak: " + streak);
-                    hs_label.setText("highscore: " + highscore);
-                    hstreak_label.setText("high streak: " + highstreak);
+                    scoreLabel.setText("score: " + score);
+                    streakLabel.setText("streak: " + streak);
+                    hsLabel.setText("highscore: " + highscore);
+                    hstreakLabel.setText("high streak: " + highstreak);
 
                     repaint(); // repaints the game board
                 }
             }
         });
 
-        if(!reset){
-            LoadGame(true);
+        if (!reset) {
+            loadGame(true);
         }
 
         Timer timer = new Timer(TICK_RATE, e -> tick());
@@ -265,6 +263,21 @@ public class TargetCourt extends JPanel {
         // Enable keyboard focus on the court area. When this component has the
         // keyboard focus, key events are handled by its key listener.
         setFocusable(true);
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_S) {
+                    System.out.println("save");
+                    saveGame();
+                }
+                if (e.getKeyCode() == KeyEvent.VK_D) {
+                    System.out.println("load");
+                    loadGame(false);
+                }
+            }
+        });
+
     }
 
     public void reset() {
@@ -277,19 +290,19 @@ public class TargetCourt extends JPanel {
         time = 0;
         netTime = 0;
 
-        SPAWN_RATE = INIT_SPAWN_RATE;
+        spawnRate = INIT_SPAWN_RATE;
         run = true;
 
-        announce_label.setText("prepare to FIGHT");
-        helpful_tip.setText(
+        announceLabel.setText("prepare to FIGHT");
+        helpfulTip.setText(
                 "tip: " +
                         tips[(int) Math.floor(Math.random() * tips.length)]
         );
 
-        score_label.setText("score: " + score);
-        live_label.setText("lives: " + lives);
-        streak_label.setText("streak: " + streak);
-        streak_label.setForeground(Color.BLACK);
+        scoreLabel.setText("score: " + score);
+        liveLabel.setText("lives: " + lives);
+        streakLabel.setText("streak: " + streak);
+        streakLabel.setForeground(Color.BLACK);
 
         bgm.setFramePosition(0);
         bgm.start();
@@ -298,49 +311,58 @@ public class TargetCourt extends JPanel {
         // Make sure that this component has the keyboard focus
         requestFocusInWindow();
     }
-    public boolean isPlaying(){
+
+    public boolean isPlaying() {
         return run;
     }
-    public void SaveGame(){
+
+    public void saveGame() {
         // keybind "s" should save the game
 
-        File file = new File(save_path);
+        File file = new File(SAVE_PATH);
         BufferedWriter bw;
-        try{
-            // 1. Log lives, streak, score, highest streak, highest score (can be done by a single line)
-            // 2. Log in-game time, net time, run (same format as first, rates depend on time)
+        try {
+            // 1. Log lives, streak, score, highest streak, highest score (can be done by a
+            // single line)
+            // 2. Log in-game time, net time, run (same format as first, rates depend on
+            // time)
             // 3. Log target and detail positions (each line for each target)
             // first line format: int ; (separated by ;)
             // ex: 3;4;25;34;52
             // second
             // target types:
-            //      1: default
-            //      2: ghost
-            //      3: fast
-            //      4: double-1
-            //      -4: double-2
-            //      5: etc....???
+            // 1: default
+            // 2: ghost
+            // 3: fast
+            // 4: double-1
+            // -4: double-2
+            // 5: etc....???
 
-            // 2,3 format: # for target type -- followed by ";", each part after represents data
+            // 2,3 format: # for target type -- followed by ";", each part after represents
+            // data
             // ex: 1;x;y;rad;vx;vy
             //
 
-            if(!file.createNewFile()){
-                file = Paths.get(save_path).toFile();
+            if (!file.createNewFile()) {
+                file = Paths.get(SAVE_PATH).toFile();
             }
             bw = new BufferedWriter(new FileWriter(file));
 
-            String scores = lives+";"+streak+";"+score+";"+highscore+";"+highstreak+"\n";
-            String ingame_data = time+";"+netTime+";"+(run ? 1:0)+"\n"; // convert bool to int to make it easier
+            String scores = lives + ";" + streak + ";" + score + ";" + highscore + ";" + highstreak
+                    + "\n";
+            String ingameData = time + ";" + netTime + ";" + (run ? 1 : 0) + "\n"; // convert bool
+                                                                                   // to int to
+                                                                                   // make it
+                                                                                   // easier
 
             bw.write(scores);
-            bw.write(ingame_data);
+            bw.write(ingameData);
 
             ArrayList<TargetObj> objs = new ArrayList<>();
             objs.addAll(targets);
             objs.addAll(details);
 
-            for(TargetObj t : objs){
+            for (TargetObj t : objs) {
                 String line = "";
                 int type = t.getType();
                 int x = t.getPx();
@@ -359,34 +381,38 @@ public class TargetCourt extends JPanel {
             }
             bw.close();
         } catch (IOException e) {
+            System.out.println("uh oh");
         }
+        System.out.println("saved");
     }
 
-    public void LoadGame(boolean def){
+    public void loadGame(boolean def) {
         // keybind "l" should load the game
+        run = false;
         reset();
 
-        File file = Paths.get(save_path).toFile();
-        try{
+        File file = Paths.get(SAVE_PATH).toFile();
+        try {
             BufferedReader r = new BufferedReader(new FileReader(file));
             String line = r.readLine(); // the file shouldn't have any blank lines.
             while (line != null && line.isEmpty()) {
                 line = r.readLine();
-            } // given that the first line is blank, let's run through until we do find the first line
+            } // given that the first line is blank, let's run through until we do find the
+              // first line
             targets = new ArrayList<>();
             points = new ArrayList<>();
 
             int indx = 0;
             String current = line;
 
-            while(line != null){
+            while (line != null) {
                 current = line;
-                if(!current.isEmpty()){
+                if (!current.isEmpty()) {
                     loaditem(indx, line);
                     indx++;
                 }
                 line = r.readLine();
-                if(def && indx > 1){
+                if (def && indx > 1) {
                     break;
                 }
             }
@@ -394,42 +420,43 @@ public class TargetCourt extends JPanel {
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
         }
-        score_label.setText("score: " + score);
-        streak_label.setText("streak: " + streak);
-        if(streak >= 5){
-            streak_label.setForeground(Color.ORANGE);
+        scoreLabel.setText("score: " + score);
+        streakLabel.setText("streak: " + streak);
+        if (streak >= 5) {
+            streakLabel.setForeground(Color.ORANGE);
         }
-        hs_label.setText("highscore: " + highscore);
-        hstreak_label.setText("high streak: " + highstreak);
-        helpful_tip.setText(
+        hsLabel.setText("highscore: " + highscore);
+        hstreakLabel.setText("high streak: " + highstreak);
+        helpfulTip.setText(
                 "tip: " +
                         tips[(int) Math.floor(Math.random() * tips.length)]
         );
-        live_label.setText("lives: " + lives);
+        liveLabel.setText("lives: " + lives);
 
-        if(lives <= 0){
-            announce_label.setText("you lost L");
-        }else{
-            announce_label.setText("prepare to FIGHT");
+        if (lives <= 0) {
+            announceLabel.setText("you lost L");
+        } else {
+            announceLabel.setText("prepare to FIGHT");
         }
         repaint(); // repaints the game board
     }
-    public void loaditem(int indx, String data){
-        if(data == null || data.isEmpty()){
+
+    public void loaditem(int indx, String data) {
+        if (data == null || data.isEmpty()) {
             return;
         }
 
-        String[] parsed_data = data.split(";");
-        int len = parsed_data.length;
+        String[] pdata = data.split(";");
+        int len = pdata.length;
         int[] intdata = new int[len];
 
-        if(len <= 4 || len > 7){
+        if (len <= 4 || len > 7) {
             return;
         }
 
-        if(indx == 0){
-            for(int i=0; i < len; i++){
-                intdata[i] = Integer.parseInt(parsed_data[i]);
+        if (indx == 0) {
+            for (int i = 0; i < len; i++) {
+                intdata[i] = Integer.parseInt(pdata[i]);
             }
             lives = intdata[0];
             streak = intdata[1];
@@ -438,9 +465,9 @@ public class TargetCourt extends JPanel {
             highstreak = intdata[4];
             return;
         }
-        if(indx == 1){
-            for(int i=0; i < len; i++){
-                intdata[i] = Integer.parseInt(parsed_data[i]);
+        if (indx == 1) {
+            for (int i = 0; i < len; i++) {
+                intdata[i] = Integer.parseInt(pdata[i]);
             }
             time = intdata[0];
             netTime = intdata[1];
@@ -450,63 +477,98 @@ public class TargetCourt extends JPanel {
         // i think we do other stuff now yes
         double[] ext = new double[3];
 
-        for(int i=0; i<parsed_data.length; i++){
-            if(i<4){
-                intdata[i] = Integer.parseInt(parsed_data[i]);
-            }else{
-                ext[i-4] = Double.parseDouble(parsed_data[i]);
+        for (int i = 0; i < pdata.length; i++) {
+            if (i < 4) {
+                intdata[i] = Integer.parseInt(pdata[i]);
+            } else {
+                ext[i - 4] = Double.parseDouble(pdata[i]);
             }
         }
 
-        TargetObj new_obj = loadTarget(
+        TargetObj newObj = loadTarget(
                 intdata[0], intdata[1], intdata[2], intdata[3],
                 ext[0], ext[1], ext[2]
         );
-        if(new_obj != null){
+        if (newObj != null) {
             int t = intdata[0];
-            if(t==0){
-                details.add(new_obj);
+            if (t == 0) {
+                details.add(newObj);
                 return;
             }
-            targets.add(new_obj);
+            targets.add(newObj);
         }
     }
 
-    public ArrayList<TargetObj> returntargs(){
+    public ArrayList<TargetObj> returntargs() {
         ArrayList<TargetObj> encaps = targets;
         return encaps;
     }
-    public ArrayList<TargetObj> returndets(){
+
+    public ArrayList<TargetObj> returndets() {
         ArrayList<TargetObj> encaps = details;
         return encaps;
     }
-    public void addTarget(TargetObj obj){
+
+    public void addTarget(TargetObj obj) {
         targets.add(obj);
     }
 
-    public TargetObj loadTarget(int type, int x, int y, int rad, double vx, double vy, double mv) {
-        if (type == 0)
-            return new Plate(x,y,vx,vy*-1,rad);
-        if (type == 1)
-            return new Normal(x, y, vx, vy);
-        if (type == 2)
-            return new Ghost(x, y, vx, vy, mv);
-        if (type == 3)
-            return new Fast(x, y, vx, vy);
-        if (type == 4)
-            return new DoubleTarget(x, y, vx, vy, 0);
-        if (type == -4)
-            return new DoubleTarget(x, y, vx, vy, 1);
-        return null;
+    public int returnLives() {
+        return lives;
     }
 
+    public int getHighscore() {
+        return highscore;
+    }
+
+    public int getStreak() {
+        return streak;
+    }
+
+    public int getHighstreak() {
+        return highstreak;
+    }
+
+    public void setHighscore(int v) {
+        highscore = v;
+    }
+
+    public void setHighstreak(int v) {
+        highstreak = v;
+    }
+
+    public void setLives(int v) {
+        lives = v;
+    }
+
+    public TargetObj loadTarget(int type, int x, int y, int rad, double vx, double vy, double mv) {
+        if (type == 0) {
+            return new Plate(x, y, vx, vy * -1, rad);
+        }
+        if (type == 1) {
+            return new Normal(x, y, vx, vy, img);
+        }
+        if (type == 2) {
+            return new Ghost(x, y, vx, vy, mv, ghostfiles);
+        }
+        if (type == 3) {
+            return new Fast(x, y, vx, vy, fastimg);
+        }
+        if (type == 4) {
+            return new DoubleTarget(x, y, vx, vy, 0, doublefiles);
+        }
+        if (type == -4) {
+            return new DoubleTarget(x, y, vx, vy, 1, doublefiles);
+        }
+        return null;
+    }
 
     void tick() {
         if (run) {
             repaint();
 
-            SPAWN_RATE = (int) (100 + -(Math.log(netTime / 100 + 1) / Math.log(2)));
-            FUNNY_RATE = 0.5 * Math.pow(-0.1 * netTime / 100 - 1, -1) + 0.5;
+            spawnRate = (int) (100 + -(Math.log(netTime / 100 + 1) / Math.log(2)));
+            funnyRate = 0.5 * Math.pow(-0.1 * netTime / 100 - 1, -1) + 0.5;
 
             time++;
             netTime++;
@@ -514,7 +576,7 @@ public class TargetCourt extends JPanel {
             movestuff(targets);
             movestuff(details);
 
-            if (time >= SPAWN_RATE) {
+            if (time >= spawnRate) {
                 spawn();
                 time = 0;
             }
@@ -530,47 +592,50 @@ public class TargetCourt extends JPanel {
                 toRemove.add(obj);
             }
         }
-        for (TargetObj obj_gone : toRemove) {
-            master.remove(obj_gone);
-            if (!(obj_gone instanceof Plate)) {
+        for (TargetObj objgone : toRemove) {
+            master.remove(objgone);
+            if (!(objgone instanceof Plate)) {
                 lives--;
                 streak = 0;
-                live_label.setText("lives: " + lives);
-                streak_label.setText("streak: " + streak);
-                streak_label.setForeground(Color.BLACK);
+                liveLabel.setText("lives: " + lives);
+                streakLabel.setText("streak: " + streak);
+                streakLabel.setForeground(Color.BLACK);
 
                 if (lives <= 0) {
                     run = false;
-                    announce_label.setText("you lost L");
+                    announceLabel.setText("you lost L");
                 }
             }
         }
     }
 
     public TargetObj returnTarget(double chance, int x, int y, int vx, int vy) {
-        if (chance < FUNNY_RATE * 0.4)
-            return new Fast(x, y, vx, vy * 1.3);
-        if (chance < FUNNY_RATE * 0.7)
-            return new DoubleTarget(x, y, vx, vy, 0);
-        if (chance < FUNNY_RATE)
-            return new Ghost(x, y, vx, vy, vy); // mv is the same as vy since it just spawned
-        return new Normal(x, y, vx, vy);
+        if (chance < funnyRate * 0.4) {
+            return new Fast(x, y, vx, vy * 1.3, fastimg);
+        }
+        if (chance < funnyRate * 0.7) {
+            return new DoubleTarget(x, y, vx, vy, 0, doublefiles);
+        }
+        if (chance < funnyRate) {
+            return new Ghost(x, y, vx, vy, vy, ghostfiles);
+        } // mv is the same as vy since it just spawned
+        return new Normal(x, y, vx, vy, img);
     }
 
     void spawn() {
         double chance = Math.random();
         TargetObj newTarget = null;
 
-        int rand_x = (int) Math.floor(Math.random() * COURT_WIDTH);
+        int randx = (int) Math.floor(Math.random() * COURT_WIDTH);
         int vx = 2;
         int vy = (int) Math.floor(Math.random() * 12 + 12);
-        int pos_y = COURT_HEIGHT;
+        int posy = COURT_HEIGHT;
 
-        if (rand_x > COURT_WIDTH / 2) {
+        if (randx > COURT_WIDTH / 2) {
             vx *= -1;
         }
 
-        newTarget = returnTarget(chance, rand_x, pos_y, vx, vy);
+        newTarget = returnTarget(chance, randx, posy, vx, vy);
 
         if (newTarget != null) {
             targets.add(newTarget);
@@ -584,7 +649,7 @@ public class TargetCourt extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        //g.drawImage(bg_img, 0, 0, bg_img.getWidth(), bg_img.getHeight() * 2, null);
+        // g.drawImage(bg_img, 0, 0, bg_img.getWidth(), bg_img.getHeight() * 2, null);
 
         for (TargetObj target : targets) {
             target.draw(g);

@@ -1,11 +1,12 @@
 package org.cis1200.coolgame;
 
-import com.beust.ah.A;
 import org.junit.jupiter.api.Test;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-
-import java.lang.annotation.Target;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,174 +36,223 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GameTest {
 
-    @Test
-    public void checkisHit(){
-        TargetObj b = new Normal(0,0,0,0);
-        assertTrue(b.isHit(4,4));
+    private static final String IMG_FILE = "files/target.png";
+    private static final String FAST_FILE = "files/fasttarget.png";
+
+    private static BufferedImage img;
+    private static BufferedImage fastimg;
+
+    private static String[] textures = {
+        "files/ghosttarget4.png",
+        "files/ghosttarget3.png",
+        "files/ghosttarget2.png",
+        "files/ghosttarget.png"
+    };
+    private static String[] doubletexts = {
+        "files/doubletarget1.png",
+        "files/doubletarget2.png"
+    };
+    private static BufferedImage[] ghostfiles = new BufferedImage[textures.length];
+    private static BufferedImage[] doublefiles = new BufferedImage[doubletexts.length];
+
+    public void durr() {
+        try {
+            if (img == null) {
+                img = ImageIO.read(new File(IMG_FILE));
+                fastimg = ImageIO.read(new File(FAST_FILE));
+                for (int i = 0; i < textures.length; i++) {
+                    ghostfiles[i] = ImageIO.read(new File(textures[i]));
+                }
+                for (int i = 0; i < doubletexts.length; i++) {
+                    doublefiles[i] = ImageIO.read(new File(doubletexts[i]));
+                }
+            }
+        } catch (IOException e) {
+            // System.out.println("Internal Error:" + e.getMessage());
+        }
     }
 
     @Test
-    public void checkisHitFalse(){
-        TargetObj b = new Normal(0,0,0,0);
-        assertFalse(b.isHit(50,50));
+    public void checkisHit() {
+        durr();
+        TargetObj b = new Normal(0, 0, 0, 0, img);
+        assertTrue(b.isHit(4, 4));
     }
 
     @Test
-    public void checkIsCollat(){
-        TargetObj b = new Normal(0,0,0,0);
-        TargetObj c = new Normal(1,1,0,0);
-        assertTrue(b.isHit(4,4) & c.isHit(4,4));
+    public void checkisHitFalse() {
+        durr();
+        TargetObj b = new Normal(0, 0, 0, 0, img);
+        assertFalse(b.isHit(50, 50));
     }
 
     @Test
-    public void checkMove(){
-        double vy_i = 30;
-        TargetObj b = new Normal(0,0, 0, vy_i);
+    public void checkIsCollat() {
+        durr();
+        TargetObj b = new Normal(0, 0, 0, 0, img);
+        TargetObj c = new Normal(1, 1, 0, 0, img);
+        assertTrue(b.isHit(4, 4) & c.isHit(4, 4));
+    }
+
+    @Test
+    public void checkMove() {
+        durr();
+
+        double vyi = 30;
+        TargetObj b = new Normal(0, 0, 0, vyi, img);
         b.move();
-        assertTrue(b.getVY() == -vy_i + 0.5);
+        assertEquals(b.getVY(), -vyi + 0.5);
     }
 
     @Test
-    public void checkMoveDouble(){
-        double vy_i = 30;
-        TargetObj b = new DoubleTarget(0,0, 0, vy_i, 1);
+    public void checkMoveDouble() {
+        durr();
+
+        double vyi = 30;
+        TargetObj b = new DoubleTarget(0, 0, 0, vyi, 1, doublefiles);
         b.move();
-        assertTrue(b.getVY() == -vy_i + 0.12); // gravity is reduced for this case
+        assertEquals(b.getVY(), -vyi + 0.12); // gravity is reduced for this case
     }
 
     @Test
-    public void checkLifeLoss(){
+    public void checkLifeLoss() {
+        durr();
+
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
 
-        game.addTarget(new Normal(0,599,0.1,-2));
-        //game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
+        game.addTarget(new Normal(0, 599, 0.1, -2, img));
+        // game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
         game.tick();
 
-        assertTrue(4 == game.lives);
+        assertEquals(4, game.returnLives());
     }
 
     @Test
-    public void checkLifeLTwice(){
+    public void checkLifeLTwice() {
+        durr();
+
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
 
-        game.addTarget(new Normal(0,599,0.1,-2));
-        game.addTarget(new Normal(0,599,0.1,-2));
+        game.addTarget(new Normal(0, 599, 0.1, -2, img));
+        game.addTarget(new Normal(0, 599, 0.1, -2, img));
 
-        //game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
+        // game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
         game.tick();
 
-        assertTrue(3 == game.lives);
+        assertEquals(3, game.returnLives());
     }
 
     @Test
-    public void lifeDeath(){
+    public void lifeDeath() {
+        durr();
+
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
-        game.lives = 1;
+        game.setLives(1);
 
-        game.addTarget(new Normal(0,599,0.1,-2));
+        game.addTarget(new Normal(0, 599, 0.1, -2, img));
 
-        //game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
+        // game.loaditem(2, "1;0;400;60;50.0; 50.0;4.0");
         game.tick();
 
-        assertTrue(0 == game.lives && !game.isPlaying());
+        assertEquals(0 == game.returnLives(), !game.isPlaying());
     }
 
     @Test
-    public void checkLoaderTarget(){
+    public void checkLoaderTarget() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
         game.loaditem(2, "1;0;400;60;50.0;50.0;4.0");
 
         ArrayList<TargetObj> stuffs = game.returntargs();
 
-        assertTrue(1 == stuffs.size());
+        assertEquals(1, stuffs.size());
     }
 
     @Test
-    public void checkLoaderDetail(){
+    public void checkLoaderDetail() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
         game.loaditem(2, "0;0;400;60;50.0;50.0;4.0");
 
         ArrayList<TargetObj> stuffs = game.returndets();
 
-        assertTrue(1 == stuffs.size());
+        assertEquals(1, stuffs.size());
     }
 
     @Test
-    public void checkLoaderEmpty(){
+    public void checkLoaderEmpty() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
         game.loaditem(2, "");
 
         ArrayList<TargetObj> stuffs = game.returntargs();
 
-        assertTrue(0 == stuffs.size());
+        assertEquals(0, stuffs.size());
     }
 
     @Test
-    public void checkHighScoreHighStreak(){
+    public void checkHighScoreHighStreak() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
 
-        game.highscore = 40;
-        game.highstreak = 40;
+        game.setHighscore(40);
+        game.setHighstreak(40);
 
         game.reset();
         // the point is that it should still be the same after reset
 
-        assertTrue(game.highscore == 40 && game.highstreak == 40);
+        assertEquals(game.getHighscore() == 40, game.getHighstreak() == 40);
     }
 
     @Test
-    public void checkSaveAndLoad(){
+    public void checkSaveAndLoad() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
-        game.addTarget(new Normal(0,40,0.1,-2));
+        game.addTarget(new Normal(0, 40, 0.1, -2, null));
 
-        game.SaveGame();
+        game.saveGame();
         game.reset();
-        game.LoadGame(false);
+        game.loadGame(false);
 
         ArrayList<TargetObj> s = game.returntargs();
 
-        assertTrue(1 == s.size());
+        assertEquals(1, s.size());
     }
 
     @Test
-    public void checkSaveNothing(){
+    public void checkSaveNothing() {
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
-        game.SaveGame();
+        game.saveGame();
         game.reset();
-        game.LoadGame(false);
+        game.loadGame(false);
 
         ArrayList<TargetObj> s = game.returntargs();
 
-        assertTrue(0 == s.size());
+        assertEquals(0, s.size());
     }
 
     @Test
-    public void checkSaveAndLoadGeneral(){
+    public void checkSaveAndLoadGeneral() {
+        durr();
+
         TargetCourt game = new TargetCourt(new JLabel(""), true);
         game.reset();
-        game.addTarget(new Normal(0,40,0.1,-2));
-        game.addTarget(new Ghost(0,40,0.1,-2, 0.1));
-        game.addTarget(new Plate(0,40,0.1,-2, 10));
+        game.addTarget(new Normal(0, 40, 0.1, -2, img));
+        game.addTarget(new Ghost(0, 40, 0.1, -2, 0.1, ghostfiles));
+        game.addTarget(new Plate(0, 40, 0.1, -2, 10));
 
-
-        game.SaveGame();
+        game.saveGame();
         game.reset();
-        game.LoadGame(false);
+        game.loadGame(false);
 
         ArrayList<TargetObj> s = game.returntargs();
         ArrayList<TargetObj> d = game.returndets();
 
-        assertTrue(2 == s.size() && 1 == d.size());
+        assertEquals(2 == s.size(), 1 == d.size());
     }
-
 
 }

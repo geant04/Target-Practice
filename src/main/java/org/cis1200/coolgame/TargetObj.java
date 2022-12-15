@@ -60,11 +60,22 @@ public abstract class TargetObj {
     public void setVY(double vy) {
         this.vy = vy;
     }
-    public void setMaxV(double maxV) {this.maxV = maxV;}
-    public double getMaxV(){return this.maxV;}
 
-    public void setType(int t){this.type = t;}
-    public int getType(){return this.type;}
+    public void setMaxV(double maxV) {
+        this.maxV = maxV;
+    }
+
+    public double getMaxV() {
+        return this.maxV;
+    }
+
+    public void setType(int t) {
+        this.type = t;
+    }
+
+    public int getType() {
+        return this.type;
+    }
 
     // stuff that updates stuff
     public void move() {
@@ -75,9 +86,9 @@ public abstract class TargetObj {
     }
 
     public boolean isHit(int x, int y) {
-        int x_sq = (x - px) * (x - px);
-        int y_sq = (y - py) * (y - py);
-        double dist = Math.sqrt(x_sq + y_sq);
+        int xsq = (x - px) * (x - px);
+        int ysq = (y - py) * (y - py);
+        double dist = Math.sqrt(xsq + ysq);
         /*
          * if(dist <= radius){
          * System.out.println(

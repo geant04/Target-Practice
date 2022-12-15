@@ -1,7 +1,5 @@
 package org.cis1200.coolgame;
 
-import org.cis1200.mushroom.GameCourt;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,6 +12,7 @@ public class RunTarget implements Runnable {
     // upon mouse click, loop through all targets, if mouse.pos < the pos < radius
     // of the circle, dub
     private boolean gui = false;
+
     public void run() {
         // NOTE : recall that the 'final' keyword notes immutability even for
         // local variables.
@@ -46,11 +45,12 @@ public class RunTarget implements Runnable {
         control_panel.add(reset);
 
         final JButton save = new JButton("Save");
-        save.addActionListener(e -> court.SaveGame());
+        save.addActionListener(e -> court.saveGame());
         control_panel.add(save);
+        save.setFocusable(false);
 
         final JButton load = new JButton("Load");
-        load.addActionListener(e -> court.LoadGame(false));
+        load.addActionListener(e -> court.loadGame(false));
         control_panel.add(load);
 
         final JButton instructions = new JButton("Instructions");
@@ -60,6 +60,7 @@ public class RunTarget implements Runnable {
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        frame.setResizable(false);
 
         // Start game
         court.reset();
@@ -69,30 +70,33 @@ public class RunTarget implements Runnable {
         JFrame nFrame = new JFrame("Target Practice Instructions");
         nFrame.setLocation(300, 300);
         int w = 800;
-        int h = 250;
+        int h = 300;
 
         nFrame.setSize(w, h);
         nFrame.setLayout(new FlowLayout());
 
         String[] lines = {
-                "Click on the targets as they fly in the sky!",
-                "Use the left mouse button to click, and move your mouse",
-                "to where the targets will land.",
-                "If the targets fall and hit the ground, you lose a life!",
-                "The game ends when you lose all five lives.",
-                "Watch out for different types of targets (normal, ghost, fast, double)!",
-                "You'll know what they do in-game."
+            "Click on the targets as they fly in the sky!",
+            "Use the left mouse button to click, and move your mouse",
+            "to where the targets will land.",
+            "If the targets fall and hit the ground, you lose a life!",
+            "The game ends when you lose all five lives.",
+            "Watch out for different types of targets (normal, ghost, fast, double)!",
+            "You'll know what they do in-game.",
+            "Extra controls: ",
+            "Save: press s",
+            "Load: press d"
         };
 
         for (int i = 0; i < lines.length; i++) {
             JLabel l = new JLabel(lines[i] + "\n");
             l.setFont(new Font("Papyrus", Font.PLAIN, 20));
-            //l.setBounds(0, init + 20*i, w, h);
-
+            // l.setBounds(0, init + 20*i, w, h);
             nFrame.add(l);
         }
 
-        //nFrame.setDefaultCloseOperation(nFrame.EXIT_ON_CLOSE);
+        // nFrame.setDefaultCloseOperation(nFrame.EXIT_ON_CLOSE);
         nFrame.setVisible(true);
+        nFrame.setResizable(false);
     }
 }

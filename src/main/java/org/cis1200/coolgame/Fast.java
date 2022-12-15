@@ -1,17 +1,17 @@
 package org.cis1200.coolgame;
 
 import java.awt.*;
-
-import static org.cis1200.coolgame.TargetCourt.fastimg;
-import static org.cis1200.coolgame.TargetCourt.img;
+import java.awt.image.BufferedImage;
 
 public class Fast extends TargetObj {
 
     public static final int INIT_RAD = 60;
+    private BufferedImage img;
 
-    public Fast(int px, int py, double vx, double vy) {
+    public Fast(int px, int py, double vx, double vy, BufferedImage img) {
         super(px, py, INIT_RAD, vx, vy);
         this.setType(3);
+        this.img = img;
         /*
          * try {
          * if (img == null) {
@@ -30,7 +30,7 @@ public class Fast extends TargetObj {
         // g.fillOval(this.getPx(), this.getPy(), getRadius(), getRadius());
 
         g.drawImage(
-                fastimg, this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
+                img, this.getPx() - getRadius() / 2, this.getPy() - getRadius() / 2,
                 this.getRadius(), this.getRadius(), null
         );
 
