@@ -19,7 +19,7 @@ public class RunTarget implements Runnable {
 
         // Top-level frame in which game components live.
         // Be sure to change "TOP LEVEL FRAME" to the name of your game
-        final JFrame frame = new JFrame("TOP LEVEL FRAME");
+        final JFrame frame = new JFrame("Target Practice!");
         frame.setLocation(300, 300);
 
         // Status panel
@@ -90,7 +90,7 @@ public class RunTarget implements Runnable {
 
         for (int i = 0; i < lines.length; i++) {
             JLabel l = new JLabel(lines[i] + "\n");
-            l.setFont(new Font("Papyrus", Font.PLAIN, 20));
+            l.setFont(new Font("Helvetica", Font.PLAIN, 20));
             // l.setBounds(0, init + 20*i, w, h);
             nFrame.add(l);
         }

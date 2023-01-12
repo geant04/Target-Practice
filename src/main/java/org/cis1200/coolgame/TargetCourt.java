@@ -38,7 +38,7 @@ public class TargetCourt extends JPanel {
         "click the target",
         "clicc",
         "thank you lord swap",
-        "i coded this game badly so try aiming below the targets"
+        "try aiming below the targets"
     };
 
     public static final int COURT_WIDTH = 600;
@@ -90,9 +90,7 @@ public class TargetCourt extends JPanel {
     private Clip shootClip;
     private Clip bgm;
 
-    private String sPath = "files/bong.wav";
     private String impressivePath = "files/impressive.wav";
-    private String pewPath = "files/pew.wav";
     private String bgmPath = "files/bgm.wav";
 
     // --- save file location
@@ -101,6 +99,7 @@ public class TargetCourt extends JPanel {
 
     public TargetCourt(JLabel status, boolean reset) {
         setLayout(null);
+        int relative_delta = -80;
 
         announceLabel = new JLabel("prepare to FIGHT");
         helpfulTip = new JLabel(
@@ -113,34 +112,34 @@ public class TargetCourt extends JPanel {
         hsLabel = new JLabel("highscore: " + highscore);
         hstreakLabel = new JLabel("high streak: " + highstreak);
 
-        announceLabel.setFont(new Font("Papyrus", Font.PLAIN, 60));
-        announceLabel.setBounds(0, -240, COURT_WIDTH, COURT_HEIGHT);
-        add(announceLabel);
+        announceLabel.setFont(new Font("Helvetica", Font.PLAIN, 60));
+        announceLabel.setBounds(0, -240 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
+        //add(announceLabel);
 
-        helpfulTip.setFont(new Font("Papyrus", Font.PLAIN, 20));
-        helpfulTip.setBounds(0, -190, COURT_WIDTH, COURT_HEIGHT);
+        helpfulTip.setFont(new Font("Helvetica", Font.PLAIN, 20));
+        helpfulTip.setBounds(0, -190 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         add(helpfulTip);
 
-        hstreakLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        hstreakLabel.setBounds(0, -120, COURT_WIDTH, COURT_HEIGHT);
+        hstreakLabel.setFont(new Font("Helvetica", Font.PLAIN, 30));
+        hstreakLabel.setBounds(0, -120 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         add(hstreakLabel);
 
-        hsLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        hsLabel.setBounds(0, -90, COURT_WIDTH, COURT_HEIGHT);
+        hsLabel.setFont(new Font("Helvetica", Font.PLAIN, 30));
+        hsLabel.setBounds(0, -90 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         add(hsLabel);
 
-        streakLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        streakLabel.setBounds(0, -50, COURT_WIDTH, COURT_HEIGHT);
+        streakLabel.setFont(new Font("Helvetica", Font.PLAIN, 30));
+        streakLabel.setBounds(0, -50 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         streakLabel.setForeground(Color.BLACK);
         add(streakLabel);
 
-        scoreLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        scoreLabel.setBounds(0, -20, COURT_WIDTH, COURT_HEIGHT);
+        scoreLabel.setFont(new Font("Helvetica", Font.PLAIN, 30));
+        scoreLabel.setBounds(0, -20 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         add(scoreLabel);
 
         liveLabel.setText("lives: " + lives);
-        liveLabel.setFont(new Font("Papyrus", Font.PLAIN, 30));
-        liveLabel.setBounds(0, 10, COURT_WIDTH, COURT_HEIGHT);
+        liveLabel.setFont(new Font("Helvetica", Font.PLAIN, 30));
+        liveLabel.setBounds(0, 10 + relative_delta, COURT_WIDTH, COURT_HEIGHT);
         add(liveLabel);
 
         JLabel the = new JLabel();
@@ -624,18 +623,16 @@ public class TargetCourt extends JPanel {
 
     void spawn() {
         double chance = Math.random();
-        TargetObj newTarget = null;
 
         int randx = (int) Math.floor(Math.random() * COURT_WIDTH);
         int vx = 2;
         int vy = (int) Math.floor(Math.random() * 12 + 12);
-        int posy = COURT_HEIGHT;
 
         if (randx > COURT_WIDTH / 2) {
             vx *= -1;
         }
 
-        newTarget = returnTarget(chance, randx, posy, vx, vy);
+        TargetObj newTarget = returnTarget(chance, randx, COURT_HEIGHT, vx, vy);
 
         if (newTarget != null) {
             targets.add(newTarget);
