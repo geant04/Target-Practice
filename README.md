@@ -14,6 +14,7 @@ Certain targets also have different attributes:
 Save and load your game state by pressing the respective **Save/Load** buttons,
 or also by using `S` and `L` keys.
 
-## Screenshots
+## Video Demo (Click the Image!)
+[<img src='files/screen.png' width="400">](https://youtu.be/hllgDSSIdjw)
 
 

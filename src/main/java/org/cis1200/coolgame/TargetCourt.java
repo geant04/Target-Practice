@@ -602,6 +602,7 @@ public class TargetCourt extends JPanel {
 
                 if (lives <= 0) {
                     run = false;
+                    helpfulTip.setText("Game Over!");
                     announceLabel.setText("you lost L");
                 }
             }
